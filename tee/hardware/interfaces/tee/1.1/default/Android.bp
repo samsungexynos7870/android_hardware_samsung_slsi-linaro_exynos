@@ -22,7 +22,7 @@ cc_library_static {
     include_dirs: [
         "hardware/samsung_slsi-linaro/exynos/tee/kinibi500/vendor/ClientLib/include",
         "hardware/samsung_slsi-linaro/exynos/tee/kinibi500/vendor/ClientLib/include/GP",
-        "system/memory/libion/kernel-headers",
+        "system/core/libion/kernel-headers",
     ],
 
     cflags: [
