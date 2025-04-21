@@ -70,8 +70,10 @@ struct boot_mode {
 #define IOCTL_START_CP_BOOTLOADER	_IOW(IOCTL_MAGIC, 0x22, struct boot_mode)
 #define IOCTL_MODEM_BOOT_ON		_IO(IOCTL_MAGIC, 0x22)
 #define IOCTL_COMPLETE_NORMAL_BOOTUP	_IO(IOCTL_MAGIC, 0x23)
+#define IOCTL_MODEM_BOOT_DONE		_IO(IOCTL_MAGIC, 0x24)
 #define IOCTL_GET_CP_STATUS		_IO(IOCTL_MAGIC, 0x27)
 #define IOCTL_MODEM_DL_START            _IO(IOCTL_MAGIC, 0x28)
+#define IOCTL_MODEM_FW_UPDATE		_IO(IOCTL_MAGIC, 0x29)
 #define IOCTL_TRIGGER_CP_CRASH		_IO(IOCTL_MAGIC, 0x34)
 #define IOCTL_TRIGGER_KERNEL_PANIC	_IO(IOCTL_MAGIC, 0x35)
 
@@ -178,6 +180,7 @@ struct sec_info {
 };
 #define IOCTL_CHECK_SECURITY            _IO(IOCTL_MAGIC, 0x62)
 #define IOCTL_XMIT_BIN                  _IO(IOCTL_MAGIC, 0x63)
+#define IOCTL_REGISTER_PCIE             _IO(IOCTL_MAGIC, 0x65)
 
 #define CPDUMP_PATH		"/data/vendor/log/cbd"
 
@@ -304,6 +307,7 @@ struct modem_comp {
 	const char *rat;
 
 	char node_boot[MAX_NAME_LEN];
+	char node_upload[MAX_NAME_LEN];
 	char *node_status;
 	char node_dump[MAX_NAME_LEN];
 	char path_bin[MAX_PATH_LEN];

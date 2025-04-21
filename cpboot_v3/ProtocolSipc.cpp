@@ -360,6 +360,14 @@ int ProtocolSipc::std_dl_send_bin(u32 stage, int b_fd, u8 *b_buffer, u32 size)
 		b_buffer += frm.len;
 	}
 
+#ifdef LEGACY_SIPC_IOCTL
+	ret = ioctl(Container::getStdBoot()->fds[FD_DEV], IOCTL_MODEM_FW_UPDATE, &frm);
+	if (ret < 0) {
+		cbd_err("ERR! IOCTL_MODEM_FW_UPDATE fail\n");
+		goto exit;
+	}
+#endif
+
 	/* Receive and check a response from CP */
 	ret = std_udl_req_resp(OPER_BOOT, 0, exp);
 	if (ret < 0) {

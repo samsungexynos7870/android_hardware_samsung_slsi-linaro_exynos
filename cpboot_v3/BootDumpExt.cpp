@@ -195,8 +195,15 @@ void BootDumpExt::setCbdArgs(char *name)
 	cbd_args->type = SEC_S5100;
 	/* ToDo: "nr" is for 2CP device, can use "umts" on 1CP device */
 	sprintf(cbd_args->cpn.node_boot, "/dev/nr_boot0");
+#ifdef LEGACY_SIPC_IOCTL
+	sprintf(cbd_args->cpn.node_upload, "/dev/modem_boot_spi");
+#endif
 	sprintf(cbd_args->cpn.node_dump, "/dev/nr_ramdump0");
+#ifdef LEGACY_SIPC_IOCTL
+	sprintf(cbd_args->cpn.path_nv_data, "/mnt/vendor/efs/nv_5g_data.bin");
+#else
 	sprintf(cbd_args->cpn.path_nv_data, "/mnt/vendor/efs/nv_nr_data.bin");
+#endif
 	cbd_args->cpn.num_stages = 6; /* boot, toc, main, vss, nv, fin */
 #endif
 
@@ -268,6 +275,10 @@ void BootDumpExt::build_std_dload_control()
 bool BootDumpExt::prepare_boot_args(enum cp_boot_mode mode)
 {
 	u32 toc_count = 0;
+#ifdef LEGACY_SIPC_IOCTL
+	int dev_fd = -1;
+	struct modem_comp *cpn = &(Container::getCbdArgs()->cpn);
+#endif
 
 	/* Prepare BOOT arguments */
 	if (!std_boot_prepare_args()) {
@@ -284,6 +295,18 @@ bool BootDumpExt::prepare_boot_args(enum cp_boot_mode mode)
 		std_boot.num_stages = toc_count;
 
 	cbd_info("num_stages: %d\n", std_boot.num_stages);
+
+#ifdef LEGACY_SIPC_IOCTL
+	/* Open the boot device for uploading CP images */
+	dev_fd = open(cpn->node_upload, O_RDWR);
+	if (dev_fd < 0) {
+		cbd_err("ERR! DEV(%s) open fail\n", cpn->node_upload);
+		goto error;
+	} else {
+		cbd_info("DEV(%s) opened (fd %d)\n", cpn->node_upload, dev_fd);
+		getStdBoot()->fds[FD_UPLOAD_DEV] = dev_fd;
+	}
+#endif
 
 	/*
 	** Set standard DLOAD control parameters with SHANNON BOOT arguments
@@ -309,12 +332,14 @@ int BootDumpExt::shannon_normal_boot()
 		goto exit;
 	}
 
+#ifndef LEGACY_SIPC_IOCTL
 	cbd_info("Load CP bootloader\n");
 	ret = std_boot_load_cp_bootloader();
 	if (ret < 0) {
 		cbd_info("ERR! std_boot_load_cp_image fail\n");
 		goto exit;
 	}
+#endif
 
 	cbd_info("Start CP bootloader\n");
 	ret = std_boot_start_cp_bootloader(CP_BOOT_MODE_NORMAL);
@@ -323,6 +348,28 @@ int BootDumpExt::shannon_normal_boot()
 		goto exit;
 	}
 
+#ifdef LEGACY_SIPC_IOCTL
+	cbd_info("Start download\n");
+	ret = ioctl(getStdBoot()->fds[FD_DEV], IOCTL_MODEM_DL_START, NULL);
+	if (ret < 0) {
+		cbd_err("modem_request_security fail\n");
+		goto exit;
+	}
+
+	cbd_info("Load CP bootloader\n");
+	ret = std_boot_load_cp_bootloader();
+	if (ret < 0) {
+		cbd_info("ERR! std_boot_load_cp_image fail\n");
+		goto exit;
+	}
+
+	cbd_info("Register PCIE\n");
+	ret = ioctl(getStdBoot()->fds[FD_DEV], IOCTL_REGISTER_PCIE, NULL);
+	if (ret < 0) {
+		cbd_info("ERR! Register PCIE fail\n");
+		goto exit;
+	}
+#endif
 	cbd_info("Load CP images\n");
 	ret = std_boot_load_cp_images();
 	if (ret < 0) {
@@ -339,6 +386,15 @@ int BootDumpExt::shannon_normal_boot()
 		cbd_info("ERR! std_boot_complete_normal_bootup fail\n");
 		goto exit;
 	}
+
+#ifdef LEGACY_SIPC_IOCTL
+	cbd_info("Done normal bootup\n");
+	ret = ioctl(getStdBoot()->fds[FD_DEV], IOCTL_MODEM_BOOT_DONE, NULL);
+	if (ret < 0) {
+		cbd_info("ERR! IOCTL_MODEM_BOOT_DONE fail\n");
+		goto exit;
+	}
+#endif
 
 exit:
 	return ret;
@@ -413,7 +469,11 @@ int BootDumpExt::std_boot_load_cp_bootloader()
 	}
 
 	/* Send BOOT loader */
+#ifdef LEGACY_SIPC_IOCTL
+	ret = ioctl(std_boot.fds[FD_UPLOAD_DEV], IOCTL_LOAD_CP_IMAGE, &img);
+#else
 	ret = ioctl(std_boot.fds[FD_DEV], IOCTL_LOAD_CP_IMAGE, &img);
+#endif
 	if (ret) {
 		cbd_err("ERR! IOCTL_LOAD_CP_IMAGE fail (%d)\n", ret);
 		goto exit;
