@@ -20,7 +20,7 @@
 #include <utils/Errors.h>
 #include <utils/Log.h>
 #include <utils/Timers.h>
-#include <videodev2.h>
+#include <linux/videodev2.h>
 
 #include "ExynosGDCTypes.h"
 #include "exynos_format.h"

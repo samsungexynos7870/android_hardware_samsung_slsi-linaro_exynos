@@ -17,7 +17,7 @@
 #ifndef __LINUX_VIDEODEV2_EXYNOS_GDC_H
 #define __LINUX_VIDEODEV2_EXYNOS_GDC_H
 
-#include "videodev2_exynos_media.h"
+#include "linux/videodev2_exynos_media.h"
 
 #define V4L2_CID_CAMERAPP_BASE      (V4L2_CTRL_CLASS_CAMERA | 0x4000)
 

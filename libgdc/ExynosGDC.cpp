@@ -17,12 +17,13 @@
 /* #define LOG_NDEBUG 0 */
 #define LOG_TAG "ExynosGDC"
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
 
 #include "exynos_format.h"
-#include <videodev2.h>
+#include <linux/videodev2.h>
 #include <videodev2_exynos_gdc.h>
 #include "exynos_v4l2.h"
 #include "ExynosGDC.h"

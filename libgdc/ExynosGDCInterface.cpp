@@ -46,7 +46,7 @@ ExynosGDCInterface::~ExynosGDCInterface()
 
 status_t ExynosGDCInterface::create(void)
 {
-    GDC_LOGI("%s: Inst: 0x%p, Commit %s", __FUNCTION__, this, COMMITID);
+    GDC_LOGI("%s: Inst: 0x%p", __FUNCTION__, this);
 
     m_state = E_GDC_STATE_CREATE;
 
