@@ -44,7 +44,12 @@ ExynosGDCInterface::~ExynosGDCInterface()
     GDC_LOGV("");
 }
 
-status_t ExynosGDCInterface::create(void)
+status_t ExynosGDCInterface::create()
+{
+    return create(GDC_VIDEO_NUM);
+}
+
+status_t ExynosGDCInterface::create(int videoNum)
 {
     GDC_LOGI("%s: Inst: 0x%p", __FUNCTION__, this);
 
@@ -58,7 +63,7 @@ status_t ExynosGDCInterface::create(void)
         GDC_LOGI("Debug profiling is enabled (%d)", m_debugProfile);
     }
 
-    return m_gdc.open();
+    return m_gdc.open(videoNum);
 }
 
 status_t ExynosGDCInterface::init(void)

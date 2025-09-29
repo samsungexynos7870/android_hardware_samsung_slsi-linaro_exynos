@@ -57,7 +57,7 @@ public:
     ExynosGDC();
     virtual ~ExynosGDC();
 
-    virtual status_t open();
+    virtual status_t open(int videoNum);
     virtual status_t release();
 
 public: //Data setting functions

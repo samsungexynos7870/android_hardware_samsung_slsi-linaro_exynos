@@ -33,7 +33,6 @@ ExynosGDC::ExynosGDC()
 {
     GDC_LOGV("");
 
-    m_videoNum = GDC_VIDEO_NUM;
     m_videoFd = -1;
 
     m_srcBufList.clear();
@@ -58,11 +57,12 @@ ExynosGDC::~ExynosGDC()
     m_videoFd = -1;
 }
 
-status_t ExynosGDC::open(void)
+status_t ExynosGDC::open(int videoNum)
 {
     char videoFileName[30];
 
-    if (m_videoNum < 0) {
+    m_videoNum = videoNum;
+    if (m_videoNum > GDC_VIDEO_NUM + 1) {
         GDC_LOGE("Invalid videoNum(%d)", m_videoNum);
         return BAD_VALUE;
     }

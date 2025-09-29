@@ -33,6 +33,7 @@ class ExynosGDCInterface
         virtual ~ExynosGDCInterface();
 
         virtual status_t create();
+        virtual status_t create(int videoNum);
         virtual status_t init();
         virtual status_t destroy();
 
