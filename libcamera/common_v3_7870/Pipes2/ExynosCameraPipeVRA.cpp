@@ -94,7 +94,7 @@ status_t ExynosCameraPipeVRA::startThread(void)
     status_t ret = NO_ERROR;
 
     if (m_gscThread->isRunning() == false) {
-        ret = m_gscThread->run();
+        ret = m_gscThread->run("m_gscThread");
         if (ret != NO_ERROR)
             CLOGE("Internal GSC Pipe startThread fail!");
         else
