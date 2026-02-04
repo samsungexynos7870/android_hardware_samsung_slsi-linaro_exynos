@@ -31,7 +31,6 @@
 #include <binder/MemoryHeapBase.h>
 #include <hardware/camera.h>
 #include <hardware/gralloc.h>
-#include <camera/Camera.h>
 #include <camera/CameraParameters.h>
 #include <media/hardware/MetadataBufferType.h>
 #include <map>
