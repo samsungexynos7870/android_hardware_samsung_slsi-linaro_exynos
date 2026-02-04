@@ -333,7 +333,7 @@ status_t ExynosCameraPipeVRA::m_runScaler(void)
     m_inputFrameQ->pushProcessQ(&newFrame);
 
     if (m_mainThread->isRunning() == false) {
-        m_mainThread->run();
+        m_mainThread->run("vra_main");
         CLOGI("startThread is succeed (%d)", getPipeId());
     }
 
