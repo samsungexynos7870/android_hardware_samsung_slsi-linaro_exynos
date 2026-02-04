@@ -186,7 +186,7 @@ public:
     status_t    storeMetaDataInBuffers(bool enable);
 
     /* For debugging */
-    status_t    dump(int fd);
+    status_t    dump(int fd) const;
 
 private:
     /* Internal Threads & Functions */
