@@ -33,7 +33,7 @@ ExynosCamera3Parameters::ExynosCamera3Parameters(int cameraId, bool flagCompanio
 
     m_staticInfo = createExynosCamera3SensorInfo(cameraId);
     m_useSizeTable = (m_staticInfo->sizeTableSupport) ? USE_CAMERA_SIZE_TABLE : false;
-    m_useAdaptiveCSCRecording = (cameraId == CAMERA_ID_BACK) ? USE_ADAPTIVE_CSC_RECORDING : USE_ADAPTIVE_CSC_RECORDING_FRONT;
+    m_useAdaptiveCSCRecording = (cameraId == CAMERA_ID_BACK) ? USE_ADAPTIVE_CSC_RECORDING : false;
 
     m_exynosconfig = NULL;
     m_activityControl = new ExynosCameraActivityControl(m_cameraId);

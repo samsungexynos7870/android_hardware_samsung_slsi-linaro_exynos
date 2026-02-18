@@ -26,6 +26,7 @@
  *   Initial version
  */
 
+#include <cstdio>
 #include "SecAppMarker.h"
 
 SecAppMarker::SecAppMarker()
