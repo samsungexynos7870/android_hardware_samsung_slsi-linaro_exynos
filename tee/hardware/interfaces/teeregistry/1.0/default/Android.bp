@@ -36,36 +36,36 @@ cc_binary {
     ],
 }
 
-cc_library_shared {
-    name: "libMcRegistry",
-
-    srcs: [
-        "Registry.cpp",
-    ],
-
-    shared_libs: [
-        "liblog",
-        "libhidlbase",
-        "libhidlmemory",
-        "libutils",
-        "android.hidl.allocator@1.0",
-        "android.hidl.memory@1.0",
-        "vendor.trustonic.teeregistry@1.0",
-    ],
-
-    cflags: [
-        "-Werror",
-        "-Wall",
-        "-Wextra",
-        "-DLOG_ANDROID"
-    ],
-
-    export_include_dirs: [
-         "include",
-    ],
-
-    include_dirs: [
-        "hardware/samsung_slsi-linaro/exynos/tee/kinibi410/ClientLib/include",
-        "hardware/samsung_slsi-linaro/exynos/tee/kinibi410/ClientLib/include/GP",
-    ],
-}
+//cc_library_shared {
+//    name: "libMcRegistry",
+//
+//    srcs: [
+//        "Registry.cpp",
+//    ],
+//
+//    shared_libs: [
+//        "liblog",
+//        "libhidlbase",
+//        "libhidlmemory",
+//        "libutils",
+//        "android.hidl.allocator@1.0",
+//        "android.hidl.memory@1.0",
+//        "vendor.trustonic.teeregistry@1.0",
+//    ],
+//
+//    cflags: [
+//        "-Werror",
+//        "-Wall",
+//        "-Wextra",
+//        "-DLOG_ANDROID"
+//    ],
+//
+//    export_include_dirs: [
+//         "include",
+//    ],
+//
+//    include_dirs: [
+//        "hardware/samsung_slsi-linaro/exynos/tee/kinibi410/ClientLib/include",
+//        "hardware/samsung_slsi-linaro/exynos/tee/kinibi410/ClientLib/include/GP",
+//    ],
+//}
