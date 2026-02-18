@@ -962,10 +962,11 @@ ResultRequest ExynosCamera3Request::popResult(uint32_t resultKey)
     ResultRequest result = NULL;
 
     result = m_popResult(resultKey, &m_resultList, &m_resultListLock);
-    if (result < 0){
-        CLOGE2("popResult is failed request - Key(%u) frameCount(%u) /  result - Key(%u) frameCount(%u)",
-            m_key, m_frameCount, result->getKey(), result->getFrameCount());
-        result = NULL;
+    
+    if (result == NULL) {
+        CLOGE2("popResult is failed request - Key(%u) frameCount(%u) / result is NULL",
+            m_key, m_frameCount);
+        return NULL;
     }
 
     return result;
@@ -976,10 +977,10 @@ ResultRequest ExynosCamera3Request::getResult(uint32_t resultKey)
     ResultRequest result = NULL;
 
     result = m_getResult(resultKey, &m_resultList, &m_resultListLock);
-    if (result < 0){
-        CLOGE2("popResult is failed request - Key(%u) frameCount(%u) /  result - Key(%u) frameCount(%u)",
-            m_key, m_frameCount, result->getKey(), result->getFrameCount());
-        result = NULL;
+    if (result == NULL) {
+        CLOGE2("getResult is failed request - Key(%u) frameCount(%u)",
+            m_key, m_frameCount);
+        return NULL;
     }
 
     return result;

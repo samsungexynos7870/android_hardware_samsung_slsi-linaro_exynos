@@ -44,6 +44,8 @@
 #define ION_FLAG_SYNC_FORCE     32
 #define ION_FLAG_MAY_HWRENDER   64
 
+#define ION_EXYNOS_HEAP_ID_SECURE_CAMERA	11
+
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <string.h>
