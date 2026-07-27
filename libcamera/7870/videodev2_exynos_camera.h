@@ -1175,6 +1175,12 @@ enum v4l2_pix_format_mode {
 #define V4L2_PIX_FMT_NV21T    v4l2_fourcc('T', 'V', '2', '1')
 #define V4L2_PIX_FMT_INTERLEAVED    v4l2_fourcc('I', 'T', 'L', 'V')
 
+/* Camera-PostProcessing ioctl */
+#define V4L2_CID_CAMERAPP_SENSOR_NUM		(V4L2_CID_CAMERAPP_BASE + 1)
+#define V4L2_CID_CAMERAPP_GDC_GRID_CROP_START		(V4L2_CID_CAMERAPP_BASE + 2)
+#define V4L2_CID_CAMERAPP_GDC_GRID_CROP_SIZE		(V4L2_CID_CAMERAPP_BASE + 3)
+#define V4L2_CID_CAMERAPP_GDC_GRID_SENSOR_SIZE		(V4L2_CID_CAMERAPP_BASE + 4)
+#define V4L2_CID_CAMERAPP_GDC_GRID_CONTROL		(V4L2_CID_CAMERAPP_BASE + 5)
 
 /*
  *  * V4L2 extention for digital camera
