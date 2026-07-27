@@ -4695,8 +4695,9 @@ status_t ExynosCamera::m_setBuffers(void)
     }
 #endif
 
+    int stride = hwPreviewW;
 #ifdef USE_BUFFER_WITH_STRIDE
-    int stride = m_scpBufferMgr->getBufStride();
+    stride = m_scpBufferMgr->getBufStride();
     if (stride != hwPreviewW) {
         CLOGI("hwPreviewW(%d), stride(%d)", hwPreviewW, stride);
         if (stride == 0) {
