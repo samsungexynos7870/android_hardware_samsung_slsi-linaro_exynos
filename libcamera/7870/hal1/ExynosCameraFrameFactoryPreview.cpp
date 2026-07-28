@@ -435,9 +435,13 @@ status_t ExynosCameraFrameFactoryPreview::postcreate(void)
     if (m_parameters->getSamsungCamera() && m_cameraId == CAMERA_ID_BACK)
         cameraType = IS_WARM_BOOT;
 
+#ifdef SAMSUNG_QUICKSHOT
     CLOGD("getDualMode(%d), getQuickShot(%d)",
         m_parameters->getDualMode(),
         m_parameters->getQuickShot());
+#else
+    CLOGD("getDualMode(%d)", m_parameters->getDualMode());
+#endif
 
     if (m_parameters->getDualMode() == false
 #ifdef SAMSUNG_QUICKSHOT
