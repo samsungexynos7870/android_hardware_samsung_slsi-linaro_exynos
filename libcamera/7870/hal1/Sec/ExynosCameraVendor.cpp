@@ -8441,8 +8441,11 @@ status_t ExynosCamera::m_doFdCallbackFunc(ExynosCameraFrameSP_sptr_t frame)
 #if defined(SAMSUNG_DOF) || defined(SUPPORT_MULTI_AF)
     m_clearDOFmeta();
 #endif
-#ifdef SAMSUNG_TN_FEATURE
+#if defined(SAMSUNG_DOF) || defined(SUPPORT_MULTI_AF)
+    /* current_set_data is a Samsung framework extension absent from AOSP. */
+#ifdef SAMSUNG_CAMERA_FRAME_METADATA_EXT
     memset(&m_frameMetadata.current_set_data, 0, sizeof(camera_current_set_t));
+#endif
 #endif
 
     m_flagMetaDataSet = false;
@@ -12025,7 +12028,7 @@ bool ExynosCamera::m_visionThreadFunc(void)
                                 m_previewCallbackBufferMgr->putBuffer(bufIndex, EXYNOS_CAMERA_BUFFER_POSITION_NONE);
                             }
                         }
-#ifdef SAMSUNG_TN_FEATURE
+#if defined(SAMSUNG_TN_FEATURE) && defined(SAMSUNG_COLOR_IRIS)
 #ifndef SUPPORT_IRIS_PREVIEW_CALLBACK
                         if (m_scenario == SCENARIO_SECURE && m_parameters->msgTypeEnabled(CAMERA_MSG_IRIS_DATA)) {
                             if (m_displayPreviewToggle) {
@@ -12837,21 +12840,10 @@ status_t ExynosCamera::m_ProgramAndProcessHLV(ExynosCameraBuffer *FrameBuffer)
 }
 #endif
 
-void ExynosCamera::m_checkEntranceLux(struct camera2_shot_ext *meta_shot_ext) {
-    uint32_t data = 0;
-
-    if (m_checkFirstFrameLux == false || m_parameters->getDualMode() == true ||
-        m_parameters->getRecordingHint() == true) {
-        m_checkFirstFrameLux = false;
-        return;
-    }
-
-    data = (int32_t)meta_shot_ext->shot.udm.ae.vendorSpecific[399];
-
-    if (data <= ENTRANCE_LOW_LUX) {
-        CLOGD(" need skip frame for ae/awb stable(%d).", data);
-        m_parameters->setFrameSkipCount(2);
-    }
+void ExynosCamera::m_checkEntranceLux(__unused struct camera2_shot_ext *meta_shot_ext)
+{
+    /* The Samsung ENTRANCE_LOW_LUX tuning constant is not public.
+     * Do not guess it; skip this optional two-frame entrance optimization. */
     m_checkFirstFrameLux = false;
 }
 
@@ -14896,12 +14888,14 @@ status_t ExynosCamera::m_previewCallbackFunc(ExynosCameraFrameSP_sptr_t newFrame
     }
 
     memset(&m_Metadata, 0, sizeof(camera_frame_metadata_t));
+#ifdef SAMSUNG_CAMERA_FRAME_METADATA_EXT
 #ifdef SAMSUNG_TIMESTAMP_BOOT
     m_Metadata.timestamp = newFrame->getTimeStampBoot();
 #else
     m_Metadata.timestamp = newFrame->getTimeStamp();
 #endif
     CLOGV("timestamp:%jd ms!", m_Metadata.timestamp);
+#endif
 
     probeTimer.start();
     if (m_parameters->msgTypeEnabled(CAMERA_MSG_PREVIEW_FRAME) &&
@@ -18510,13 +18504,10 @@ bool ExynosCamera::m_yuvCallbackThreadFunc(void)
 #endif
 
     debug = m_parameters->getDebugAttribute();
-#ifdef SAMSUNG_TN_FEATURE
+#ifdef SAMSUNG_CAMERA_FRAME_METADATA_EXT
     m_MetadataExt.ext_data.usage = EXT_DATA_EXIF_DEBUG_INFO;
     m_MetadataExt.ext_data.size = debug->debugSize[APP_MARKER_4];
     m_MetadataExt.ext_data.data = (void *)debug->debugData[APP_MARKER_4];
-#endif
-
-#ifdef SAMSUNG_TN_FEATURE
 #ifdef SAMSUNG_TIMESTAMP_BOOT
     m_MetadataExt.timestamp = newFrame->getTimeStampBoot();
 #else
@@ -18910,12 +18901,14 @@ bool ExynosCamera::m_jpegCallbackThreadFunc(void)
     }
 
 #ifdef SAMSUNG_TN_FEATURE
+#ifdef SAMSUNG_CAMERA_FRAME_METADATA_EXT
 #ifdef SAMSUNG_TIMESTAMP_BOOT
     m_Metadata.timestamp = newFrame->getTimeStampBoot();
 #else
     m_Metadata.timestamp = newFrame->getTimeStamp();
 #endif
     CLOGV(" timestamp:%lldms!", m_Metadata.timestamp);
+#endif
 #endif
 
 #ifdef ONE_SECOND_BURST_CAPTURE
@@ -21099,12 +21092,14 @@ bool ExynosCamera::m_LDCaptureThreadFunc(void)
                 } else {
                     memset(&m_Metadata, 0, sizeof(camera_frame_metadata_t));
 #ifdef SAMSUNG_TN_FEATURE
+#ifdef SAMSUNG_CAMERA_FRAME_METADATA_EXT
 #ifdef SAMSUNG_TIMESTAMP_BOOT
                     m_Metadata.timestamp = newFrame->getTimeStampBoot();
 #else
                     m_Metadata.timestamp = newFrame->getTimeStamp();
 #endif
                     CLOGV(" timestamp:%lldms!", (long long)m_Metadata.timestamp);
+#endif
 #endif
                     setBit(&m_callbackState, CALLBACK_STATE_COMPRESSED_IMAGE, true);
                     m_dataCb(CAMERA_MSG_COMPRESSED_IMAGE_NOTIFY, dummyCallbackHeap, 0, &m_Metadata, m_callbackCookie);
