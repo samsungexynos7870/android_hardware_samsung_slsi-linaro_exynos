@@ -607,6 +607,11 @@ public:
     ExynosSensorIMX386Base();
 };
 
+struct ExynosSensorIMX258Base : public ExynosSensorInfoBase {
+public:
+    ExynosSensorIMX258Base();
+};
+
 struct ExynosSensorS5K2T2Base : public ExynosSensorInfoBase {
 public:
     ExynosSensorS5K2T2Base();

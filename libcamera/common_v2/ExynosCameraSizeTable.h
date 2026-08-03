@@ -122,6 +122,7 @@ enum SIZE_LUT_INDEX {
 #include "ExynosCameraSizeTableIMX219.h"
 
 #include "ExynosCameraSizeTableIMX386.h"
+#include "ExynosCameraSizeTableIMX258.h"
 /*Siliconfile Sensor */
 #include "ExynosCameraSizeTableSR261.h"
 #include "ExynosCameraSizeTableSR544.h"
