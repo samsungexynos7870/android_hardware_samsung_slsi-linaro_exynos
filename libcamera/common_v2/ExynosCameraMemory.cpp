@@ -162,7 +162,7 @@ sp<GraphicBuffer> ExynosCameraGraphicBufferAllocator::m_alloc(int index,
     }
 
     if (planeCount == 1) {
-        m_privateHandle[index] = new private_handle_t(fdArr[0], bufSize[0], grallocUsage, width, height,
+        m_privateHandle[index] = new private_handle_t(fdArr[0], -1, -1, bufSize[0], 0, 0, grallocUsage, width, height,
             halPixelFormat, halPixelFormat, halPixelFormat, width, height, 0);
 
         m_privateHandle[index]->base = (uint64_t)bufAddr[0];
