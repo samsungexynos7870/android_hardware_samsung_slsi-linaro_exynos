@@ -265,8 +265,8 @@ public:
 struct ExynosCamera3SensorS5K3M3Base : public ExynosCamera3SensorInfoBase {
 protected:
     ExynosCamera3SensorS5K3M3Base() {
-        android_printAssert(NULL, LOG_TAG, "ASSERT(%s[%d]):Invalid Call. Call another contructor, assert!!!!",
-            __FUNCTION__, __LINE__);
+        // android_printAssert(NULL, LOG_TAG, "ASSERT(%s[%d]):Invalid Call. Call another contructor, assert!!!!",
+        //    __FUNCTION__, __LINE__);
     }
 
 public:
