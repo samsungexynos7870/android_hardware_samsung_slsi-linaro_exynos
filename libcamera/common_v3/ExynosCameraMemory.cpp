@@ -176,7 +176,8 @@ sp<GraphicBuffer> ExynosCameraGraphicBufferAllocator::m_alloc(int index,
     ALOGV("DEBUG(%s[%d]):new GraphicBuffer(bufAddr(%p), width(%d), height(%d), halPixelFormat(%d), grallocUsage(%d), stride(%d), m_privateHandle[%d](%p), false)",
             __FUNCTION__, __LINE__, bufAddr[0], width, height, halPixelFormat, grallocUsage, stride, index, m_privateHandle[index]);
 
-    m_graphicBuffer[index] = new GraphicBuffer(width, height, halPixelFormat, grallocUsage, stride, (native_handle_t*)m_privateHandle[index], false);
+    m_graphicBuffer[index] = new GraphicBuffer((native_handle_t*)m_privateHandle[index], GraphicBuffer::WRAP_HANDLE,
+                                               width, height, (PixelFormat)halPixelFormat, 1, (uint64_t)grallocUsage, stride);
 
     m_flagGraphicBufferAlloc[index] = true;
 
