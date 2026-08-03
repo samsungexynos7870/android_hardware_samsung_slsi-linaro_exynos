@@ -224,6 +224,13 @@ public:
     ExynosCamera3SensorIMX260_2L1Base(int sensorId);
 };
 
+struct ExynosCamera3SensorIMX258Base : public ExynosCamera3SensorInfoBase {
+private:
+
+public:
+    ExynosCamera3SensorIMX258Base();
+};
+
 struct ExynosCamera3SensorOV5670Base : public ExynosCamera3SensorInfoBase {
 private:
 

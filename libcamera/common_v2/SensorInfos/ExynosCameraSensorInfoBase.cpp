@@ -6946,4 +6946,117 @@ ExynosSensorIMX386Base::ExynosSensorIMX386Base()
 
 };
 
+ExynosSensorIMX258Base::ExynosSensorIMX258Base() : ExynosSensorInfoBase()
+{
+    maxPreviewW = 1920;
+    maxPreviewH = 1080;
+    maxPictureW = 4128;
+    maxPictureH = 3096;
+    maxVideoW = 1920;
+    maxVideoH = 1080;
+    maxSensorW = 4144;
+    maxSensorH = 3106;
+    sensorMarginW = 16;
+    sensorMarginH = 10;
+
+    maxThumbnailW = 512;
+    maxThumbnailH = 384;
+    minFps = 1;
+    maxFps = 30;
+    fNumberNum = 19;
+    fNumberDen = 10;
+    focalLengthNum = 370;
+    focalLengthDen = 100;
+    focusDistanceNum = 0;
+    focusDistanceDen = 0;
+    apertureNum = 227;
+    apertureDen = 100;
+
+    horizontalViewAngle[SIZE_RATIO_16_9] = 62.2f;
+    horizontalViewAngle[SIZE_RATIO_4_3] = 62.2f;
+    horizontalViewAngle[SIZE_RATIO_1_1] = 48.2f;
+    horizontalViewAngle[SIZE_RATIO_3_2] = 55.2f;
+    horizontalViewAngle[SIZE_RATIO_5_4] = 48.8f;
+    horizontalViewAngle[SIZE_RATIO_5_3] = 58.4f;
+    horizontalViewAngle[SIZE_RATIO_11_9] = 48.8f;
+    verticalViewAngle = 39.4f;
+    focalLengthIn35mmLength = 28;
+
+    effectList =
+          EFFECT_NONE
+        ;
+
+    hiddenEffectList =
+          EFFECT_NONE
+        | EFFECT_MONO
+        | EFFECT_NEGATIVE
+        | EFFECT_SEPIA
+        | EFFECT_POSTERIZE
+        | EFFECT_AQUA
+        | EFFECT_BEAUTY_FACE
+        ;
+
+#if 1
+    if (bnsSupport == true) {
+        previewSizeLutMax           = sizeof(PREVIEW_SIZE_LUT_IMX258) / (sizeof(int) * SIZE_OF_LUT);
+        videoSizeLutMax             = sizeof(VIDEO_SIZE_LUT_IMX258)   / (sizeof(int) * SIZE_OF_LUT);
+        pictureSizeLutMax           = sizeof(PICTURE_SIZE_LUT_IMX258) / (sizeof(int) * SIZE_OF_LUT);
+        /* videoSizeLutHighSpeed60Max  = sizeof(VIDEO_SIZE_LUT_60FPS_HIGH_SPEED_IMX258_BNS) / (sizeof(int) * SIZE_OF_LUT); */
+        /* videoSizeLutHighSpeed120Max = sizeof(VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_IMX258_BNS) / (sizeof(int) * SIZE_OF_LUT); */
+
+        previewSizeLut              = PREVIEW_SIZE_LUT_IMX258;
+        dualPreviewSizeLut          = PREVIEW_SIZE_LUT_IMX258_BNS;
+        videoSizeLut                = VIDEO_SIZE_LUT_IMX258;
+        videoSizeBnsLut             = VIDEO_SIZE_LUT_IMX258_BNS;
+        pictureSizeLut              = PICTURE_SIZE_LUT_IMX258;
+        /* videoSizeLutHighSpeed60     = VIDEO_SIZE_LUT_60FPS_HIGH_SPEED_IMX258_BNS; */
+        /* videoSizeLutHighSpeed120    = VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_IMX258_BNS; */
+        sizeTableSupport            = true;
+    } else {
+        previewSizeLutMax           = sizeof(PREVIEW_SIZE_LUT_IMX258) / (sizeof(int) * SIZE_OF_LUT);;
+        pictureSizeLutMax           = sizeof(PICTURE_SIZE_LUT_IMX258) / (sizeof(int) * SIZE_OF_LUT);
+        videoSizeLutMax             = sizeof(VIDEO_SIZE_LUT_IMX258)   / (sizeof(int) * SIZE_OF_LUT);
+        /* vtcallSizeLutMax            = 0; */
+        /* videoSizeLutHighSpeed60Max  = 0; */
+        /* videoSizeLutHighSpeed120Max = 0; */
+
+        previewSizeLut              = PREVIEW_SIZE_LUT_IMX258;
+        pictureSizeLut              = PICTURE_SIZE_LUT_IMX258;
+        videoSizeLut                = VIDEO_SIZE_LUT_IMX258;
+        /* videoSizeBnsLut             = NULL; */
+        videoSizeLutHighSpeed       = VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_IMX258;
+        /* videoSizeLutHighSpeed60     = NULL; */
+        videoSizeLutHighSpeed120    = VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_IMX258;
+        /* vtcallSizeLut               = NULL; */
+        sizeTableSupport            = true;
+    }
+
+    /* Set the max of preview/picture/video lists */
+    rearPreviewListMax      = sizeof(IMX258_YUV_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    rearPictureListMax      = sizeof(IMX258_YUV_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenRearPreviewListMax    = sizeof(IMX258_HIDDEN_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenRearPictureListMax    = sizeof(IMX258_HIDDEN_PICTURE_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    thumbnailListMax    = sizeof(IMX258_THUMBNAIL_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    rearVideoListMax        = sizeof(IMX258_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenRearVideoListMax    = sizeof(IMX258_HIDDEN_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    highSpeedVideoListMax = sizeof(IMX258_HIGH_SPEED_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    rearFPSListMax        = sizeof(IMX258_FPS_RANGE_LIST) / (sizeof(int) * 2);
+    hiddenRearFPSListMax    = sizeof(IMX258_HIDDEN_FPS_RANGE_LIST) / (sizeof(int) * 2);
+    highSpeedVideoFPSListMax = sizeof(IMX258_HIGH_SPEED_VIDEO_FPS_RANGE_LIST) / (sizeof(int) *2);
+
+    /* Set supported preview/picture/video lists */
+    rearPreviewList     = IMX258_YUV_LIST;
+    rearPictureList     = IMX258_YUV_LIST;
+    hiddenRearPreviewList   = IMX258_HIDDEN_PREVIEW_LIST;
+    hiddenRearPictureList   = IMX258_HIDDEN_PICTURE_LIST;
+    thumbnailList   = IMX258_THUMBNAIL_LIST;
+    rearVideoList       = IMX258_VIDEO_LIST;
+    hiddenRearVideoList   = IMX258_HIDDEN_VIDEO_LIST;
+    highSpeedVideoList = IMX258_HIGH_SPEED_VIDEO_LIST;
+    rearFPSList       = IMX258_FPS_RANGE_LIST;
+    hiddenRearFPSList   = IMX258_HIDDEN_FPS_RANGE_LIST;
+    highSpeedVideoFPSList = IMX258_HIGH_SPEED_VIDEO_FPS_RANGE_LIST;
+#endif
+};
+
 }; /* namespace android */
