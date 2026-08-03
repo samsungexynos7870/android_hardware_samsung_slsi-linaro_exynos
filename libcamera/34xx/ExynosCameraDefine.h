@@ -9,7 +9,6 @@
 #include <hardware/camera.h>
 #include <hardware/camera3.h>
 #include <hardware/gralloc.h>
-#include <camera/Camera.h>
 #include <camera/CameraParameters.h>
 #include <camera/CameraMetadata.h>
 #include <media/hardware/MetadataBufferType.h>
