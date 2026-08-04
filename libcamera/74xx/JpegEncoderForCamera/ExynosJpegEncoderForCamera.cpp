@@ -375,15 +375,15 @@ int ExynosJpegEncoderForCamera::makeExif (unsigned char *exifOut,
     writeExifIfd(&pCur, EXIF_TAG_IMAGE_HEIGHT, EXIF_TYPE_LONG,
                  1, exifInfo->height);
     writeExifIfd(&pCur, EXIF_TAG_MAKE, EXIF_TYPE_ASCII,
-                 strlen((char *)exifInfo->maker) + 1, exifInfo->maker, &LongerTagOffest, pIfdStart);
+                 strlen((char *)exifInfo->maker) + 1, (unsigned char *)exifInfo->maker, &LongerTagOffest, pIfdStart);
     writeExifIfd(&pCur, EXIF_TAG_MODEL, EXIF_TYPE_ASCII,
-                 strlen((char *)exifInfo->model) + 1, exifInfo->model, &LongerTagOffest, pIfdStart);
+                 strlen((char *)exifInfo->model) + 1, (unsigned char *)exifInfo->model, &LongerTagOffest, pIfdStart);
     writeExifIfd(&pCur, EXIF_TAG_ORIENTATION, EXIF_TYPE_SHORT,
                  1, exifInfo->orientation);
     writeExifIfd(&pCur, EXIF_TAG_SOFTWARE, EXIF_TYPE_ASCII,
-                 strlen((char *)exifInfo->software) + 1, exifInfo->software, &LongerTagOffest, pIfdStart);
+                 strlen((char *)exifInfo->software) + 1, (unsigned char *)exifInfo->software, &LongerTagOffest, pIfdStart);
     writeExifIfd(&pCur, EXIF_TAG_DATE_TIME, EXIF_TYPE_ASCII,
-                 20, exifInfo->date_time, &LongerTagOffest, pIfdStart);
+                 20, (unsigned char *)exifInfo->date_time, &LongerTagOffest, pIfdStart);
     writeExifIfd(&pCur, EXIF_TAG_YCBCR_POSITIONING, EXIF_TYPE_SHORT,
                  1, exifInfo->ycbcr_positioning);
     writeExifIfd(&pCur, EXIF_TAG_EXIF_IFD_POINTER, EXIF_TYPE_LONG,
@@ -414,11 +414,11 @@ int ExynosJpegEncoderForCamera::makeExif (unsigned char *exifOut,
     writeExifIfd(&pCur, EXIF_TAG_ISO_SPEED_RATING, EXIF_TYPE_SHORT,
                  1, exifInfo->iso_speed_rating);
     writeExifIfd(&pCur, EXIF_TAG_EXIF_VERSION, EXIF_TYPE_UNDEFINED,
-                 4, exifInfo->exif_version);
+                 4, (unsigned char *)exifInfo->exif_version);
     writeExifIfd(&pCur, EXIF_TAG_DATE_TIME_ORG, EXIF_TYPE_ASCII,
-                 20, exifInfo->date_time, &LongerTagOffest, pIfdStart);
+                 20, (unsigned char *)exifInfo->date_time, &LongerTagOffest, pIfdStart);
     writeExifIfd(&pCur, EXIF_TAG_DATE_TIME_DIGITIZE, EXIF_TYPE_ASCII,
-                 20, exifInfo->date_time, &LongerTagOffest, pIfdStart);
+                 20, (unsigned char *)exifInfo->date_time, &LongerTagOffest, pIfdStart);
     writeExifIfd(&pCur, EXIF_TAG_SHUTTER_SPEED, EXIF_TYPE_SRATIONAL,
                  1, (rational_t *)&exifInfo->shutter_speed, &LongerTagOffest, pIfdStart);
     writeExifIfd(&pCur, EXIF_TAG_APERTURE, EXIF_TYPE_RATIONAL,
@@ -460,7 +460,7 @@ int ExynosJpegEncoderForCamera::makeExif (unsigned char *exifOut,
     writeExifIfd(&pCur, EXIF_TAG_SCENCE_CAPTURE_TYPE, EXIF_TYPE_LONG,
                  1, exifInfo->scene_capture_type);
     writeExifIfd(&pCur, EXIF_TAG_IMAGE_UNIQUE_ID, EXIF_TYPE_ASCII,
-                 sizeof(exifInfo->unique_id), exifInfo->unique_id, &LongerTagOffest, pIfdStart);
+                 sizeof(exifInfo->unique_id), (unsigned char *)exifInfo->unique_id, &LongerTagOffest, pIfdStart);
     tmp = 0;
     memcpy(pCur, &tmp, OFFSET_SIZE); /* next IFD offset */
     pCur += OFFSET_SIZE;
@@ -521,11 +521,11 @@ int ExynosJpegEncoderForCamera::makeExif (unsigned char *exifOut,
         writeExifIfd(&pCur, EXIF_TAG_GPS_VERSION_ID, EXIF_TYPE_BYTE,
                      4, exifInfo->gps_version_id);
         writeExifIfd(&pCur, EXIF_TAG_GPS_LATITUDE_REF, EXIF_TYPE_ASCII,
-                     2, exifInfo->gps_latitude_ref);
+                     2, (unsigned char *)exifInfo->gps_latitude_ref);
         writeExifIfd(&pCur, EXIF_TAG_GPS_LATITUDE, EXIF_TYPE_RATIONAL,
                      3, exifInfo->gps_latitude, &LongerTagOffest, pIfdStart);
         writeExifIfd(&pCur, EXIF_TAG_GPS_LONGITUDE_REF, EXIF_TYPE_ASCII,
-                     2, exifInfo->gps_longitude_ref);
+                     2, (unsigned char *)exifInfo->gps_longitude_ref);
         writeExifIfd(&pCur, EXIF_TAG_GPS_LONGITUDE, EXIF_TYPE_RATIONAL,
                      3, exifInfo->gps_longitude, &LongerTagOffest, pIfdStart);
         writeExifIfd(&pCur, EXIF_TAG_GPS_ALTITUDE_REF, EXIF_TYPE_BYTE,
@@ -546,7 +546,7 @@ int ExynosJpegEncoderForCamera::makeExif (unsigned char *exifOut,
                          tmp+sizeof(ExifAsciiPrefix), tmp_buf, &LongerTagOffest, pIfdStart);
         }
         writeExifIfd(&pCur, EXIF_TAG_GPS_DATESTAMP, EXIF_TYPE_ASCII,
-                     11, exifInfo->gps_datestamp, &LongerTagOffest, pIfdStart);
+                     11, (unsigned char *)exifInfo->gps_datestamp, &LongerTagOffest, pIfdStart);
         tmp = 0;
         memcpy(pCur, &tmp, OFFSET_SIZE); /* next IFD offset */
         pCur += OFFSET_SIZE;
