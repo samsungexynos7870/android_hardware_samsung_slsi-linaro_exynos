@@ -36,8 +36,6 @@ static const char ExifAsciiPrefix[] = { 0x41, 0x53, 0x43, 0x49, 0x49, 0x0, 0x0, 
 #define MAX_INPUT_BUFFER_PLANE_NUM (3)
 #define MAX_OUTPUT_BUFFER_PLANE_NUM (1)
 
-int iJpegSize;
-
 unsigned int measure_time(struct timeval *start, struct timeval *stop)
 {
 	unsigned long sec, usec, time;
