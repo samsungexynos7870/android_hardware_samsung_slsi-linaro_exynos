@@ -97,6 +97,7 @@ public :
 
     int     setInBuf(int *buf, int *size);
     int     setInBuf2(int *buf, int *size);
+    void    setExtScalerNum(int extScalerNum);
     int     setOutBuf(int buf, int size);
     int     setInBuf(char **buf, int *size);
     int     setOutBuf(char *buf, int size);
@@ -184,6 +185,7 @@ private:
     int m_thumbnailH;
     int m_thumbnailQuality;
     void *m_exynosThumbCSC;
+    int m_extScalerNum;
 };
 
 #endif /* __SEC_JPG_ENC_H__ */
