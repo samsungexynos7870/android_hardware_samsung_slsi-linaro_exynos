@@ -40,6 +40,9 @@
 
 #define MAX_NUM_OF_CAMERA 2
 
+/* flashlight control */
+#define TORCH_FILE_PATH "/sys/class/camera/flash/rear_torch_flash"
+
 /* init camera module */
 #define INIT_MODULE_PATH "/sys/class/camera/rear/fw_update"
 

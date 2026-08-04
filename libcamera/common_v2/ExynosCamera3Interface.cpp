@@ -114,7 +114,7 @@ static int HAL3_camera_device_close(struct hw_device_t* device)
 {
     ExynosCameraAutoTimer autoTimer(__FUNCTION__);
 
-    uint32_t cameraId;
+    uint32_t cameraId = 0;
     int ret = OK;
     enum CAMERA_STATE state;
     char camid[10];
@@ -363,7 +363,7 @@ static int HAL_getCameraInfo(int cameraId, struct camera_info *info)
     }
 
     /* set facing and orientation */
-    memcpy(info, &sCameraInfo[cameraId], sizeof(CameraInfo));
+    memcpy(info, &sCameraInfo[cameraId], sizeof(sCameraInfo[0]));
 
     /* set device API version */
     info->device_version = CAMERA_DEVICE_API_VERSION_3_3;

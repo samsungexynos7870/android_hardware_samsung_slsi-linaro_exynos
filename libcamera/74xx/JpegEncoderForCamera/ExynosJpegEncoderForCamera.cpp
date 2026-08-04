@@ -79,6 +79,16 @@ ExynosJpegEncoderForCamera::ExynosJpegEncoderForCamera()
     }
 }
 
+ExynosJpegEncoderForCamera::ExynosJpegEncoderForCamera(bool useThumbnailHWFC)
+    : ExynosJpegEncoderForCamera()
+{
+    /*
+     * TODO: HWFC thumbnail path is not wired up in this legacy encoder;
+     * the flag is accepted for 7870-era (J5-family) API compatibility only.
+     */
+    (void)useThumbnailHWFC;
+}
+
 ExynosJpegEncoderForCamera::~ExynosJpegEncoderForCamera()
 {
     if (m_flagCreate == true)
@@ -154,6 +164,15 @@ int ExynosJpegEncoderForCamera::create(void)
 
     m_flagCreate = true;
 
+    return ERROR_NONE;
+}
+
+int ExynosJpegEncoderForCamera::EnableHWFC(void)
+{
+    /*
+     * TODO: HWFC enable; this legacy encoder always keeps the
+     * SW/libhwjpeg path. Kept for 7870-era (J5-family) API compatibility.
+     */
     return ERROR_NONE;
 }
 
@@ -260,6 +279,33 @@ int ExynosJpegEncoderForCamera::setInBuf(int *buf, int *size)
     ret = m_jpegMain->setInBuf(buf, size);
     if (ret) {
         ALOGE("ERR(%s):Fail to JPEG input buffer!!", __FUNCTION__);
+        return ret;
+    }
+
+    return ERROR_NONE;
+}
+
+int ExynosJpegEncoderForCamera::setInBuf2(int *buf, int *size)
+{
+    if (m_flagCreate == false)
+        return ERROR_NOT_YET_CREATED;
+
+    if (buf == NULL)
+        return ERROR_BUFFR_IS_NULL;
+
+    if (size == NULL)
+        return ERROR_BUFFR_IS_NULL;
+
+    /* thumbnail encoder handle is created lazily with the first thumbnail use */
+    if (m_jpegThumb == NULL)
+        return ERROR_NONE;
+
+    int ret = ERROR_NONE;
+
+    /* 7870-era HWFC thumbnail input buffer: pass through to the thumbnail handle */
+    ret = m_jpegThumb->setInBuf(buf, size);
+    if (ret) {
+        ALOGE("ERR(%s):Fail to JPEG thumbnail input buffer!!", __FUNCTION__);
         return ret;
     }
 

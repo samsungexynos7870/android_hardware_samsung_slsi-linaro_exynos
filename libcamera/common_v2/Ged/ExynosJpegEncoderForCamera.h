@@ -78,11 +78,14 @@ public :
     };
 
     ExynosJpegEncoderForCamera();
+    ExynosJpegEncoderForCamera(bool useThumbnailHWFC);
     virtual ~ExynosJpegEncoderForCamera();
 
     bool   flagCreate();
     int     create(void);
     int     destroy(void);
+    /* 7870-era J5-family API compatibility: enable H/W format converter path */
+    int     EnableHWFC(void);
 
     int     setSize(int w, int h);
     int     setQuality(int quality);
@@ -93,6 +96,7 @@ public :
     int     updateConfig(void);
 
     int     setInBuf(int *buf, int *size);
+    int     setInBuf2(int *buf, int *size);
     int     setOutBuf(int buf, int size);
     int     setInBuf(char **buf, int *size);
     int     setOutBuf(char *buf, int size);
