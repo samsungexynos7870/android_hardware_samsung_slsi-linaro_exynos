@@ -6116,6 +6116,35 @@ ExynosCamera3SensorS5K3M3Base::ExynosCamera3SensorS5K3M3Base(int cameraId) : Exy
     hiddenRearFPSList   = S5K3M3_HIDDEN_FPS_RANGE_LIST;
     /* highSpeedVideoFPSList = NULL; */
 
+    /* The 3M3 module is used as the FRONT camera. The HAL3 metadata
+       converter reads frontPictureList/frontPictureListMax for
+       CAMERA_ID_FRONT, so the front lists must be filled as well
+       (mirrors ExynosSensorS5K3M3Base); otherwise
+       SCALER_AVAILABLE_STREAM_CONFIGURATIONS comes out empty and apps
+       crash in StreamConfigurationMap.<init>. */
+
+    /* Set the max of preview/picture/video lists */
+    frontPreviewListMax     = sizeof(S5K3M3_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    frontPictureListMax     = sizeof(S5K3M3_PICTURE_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenFrontPreviewListMax    = sizeof(S5K3M3_HIDDEN_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenFrontPictureListMax    = sizeof(S5K3M3_HIDDEN_PICTURE_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    thumbnailListMax    = sizeof(S5K3M3_THUMBNAIL_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    frontVideoListMax       = sizeof(S5K3M3_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenFrontVideoListMax    = sizeof(S5K3M3_HIDDEN_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    frontFPSListMax       = sizeof(S5K3M3_FPS_RANGE_LIST) / (sizeof(int) * 2);
+    hiddenFrontFPSListMax    = sizeof(S5K3M3_HIDDEN_FPS_RANGE_LIST) / (sizeof(int) * 2);
+
+    /* Set supported preview/picture/video lists */
+    frontPreviewList    = S5K3M3_PREVIEW_LIST;
+    frontPictureList    = S5K3M3_PICTURE_LIST;
+    hiddenFrontPreviewList  = S5K3M3_HIDDEN_PREVIEW_LIST;
+    hiddenFrontPictureList  = S5K3M3_HIDDEN_PICTURE_LIST;
+    thumbnailList   = S5K3M3_THUMBNAIL_LIST;
+    frontVideoList      = S5K3M3_VIDEO_LIST;
+    hiddenFrontVideoList  = S5K3M3_HIDDEN_VIDEO_LIST;
+    frontFPSList      = S5K3M3_FPS_RANGE_LIST;
+    hiddenFrontFPSList  = S5K3M3_HIDDEN_FPS_RANGE_LIST;
+
     /*
     ** Camera HAL 3.2 Static Metadatas
     **
