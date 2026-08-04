@@ -741,6 +741,9 @@ public:
 
 /* Helpper functions */
 int getSensorId(int camId);
+#ifdef SENSOR_NAME_GET_FROM_FILE
+int getSensorIdFromFile(int camId);
+#endif
 void getDualCameraId(int *cameraId_0, int *cameraId_1);
 
 enum CAMERA_ID {

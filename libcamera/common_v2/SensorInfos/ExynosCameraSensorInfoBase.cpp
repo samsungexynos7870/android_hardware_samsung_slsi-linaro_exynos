@@ -27,6 +27,13 @@
 
 namespace android {
 
+#ifdef SENSOR_NAME_GET_FROM_FILE
+int g_rearSensorId = -1;
+int g_rear2SensorId = -1;
+int g_frontSensorId = -1;
+int g_front2SensorId = -1;
+#endif
+
 /* #define CALIBRATE_BCROP5_SIZE */  /* HACK for istor EVT0 3aa h/w bcrop5 */
 
 #ifdef CALIBRATE_BCROP5_SIZE
@@ -50,6 +57,27 @@ int getSensorId(int camId)
 {
     int sensorId = -1;
 
+#ifdef SENSOR_NAME_GET_FROM_FILE
+    int *curSensorId;
+
+    if (camId == CAMERA_ID_BACK)
+        curSensorId = &g_rearSensorId;
+    else if (camId == CAMERA_ID_BACK_1)
+        curSensorId = &g_rear2SensorId;
+    else if (camId == CAMERA_ID_FRONT_1)
+        curSensorId = &g_front2SensorId;
+    else
+        curSensorId = &g_frontSensorId;
+
+    if (*curSensorId < 0) {
+        *curSensorId = getSensorIdFromFile(camId);
+        if (*curSensorId < 0) {
+            ALOGE("ERR(%s): invalid sensor ID %d", __FUNCTION__, sensorId);
+        }
+    }
+
+    sensorId = *curSensorId;
+#else
     if (camId == CAMERA_ID_BACK) {
         sensorId = MAIN_CAMERA_SENSOR_NAME;
     } else if (camId == CAMERA_ID_FRONT) {
@@ -65,6 +93,7 @@ int getSensorId(int camId)
     } else {
         ALOGE("ERR(%s):Unknown camera ID(%d)", __FUNCTION__, camId);
     }
+#endif
 
     if (sensorId == SENSOR_NAME_NOTHING) {
         android_printAssert(NULL, LOG_TAG, "ASSERT(%s[%d]):camId(%d):sensorId == SENSOR_NAME_NOTHING, assert!!!!",
