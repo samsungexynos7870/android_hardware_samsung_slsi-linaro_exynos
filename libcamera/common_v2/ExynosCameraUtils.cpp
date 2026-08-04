@@ -20,6 +20,9 @@
 #include <cutils/log.h>
 
 #include "ExynosCameraUtils.h"
+#ifdef SENSOR_NAME_GET_FROM_FILE
+#include "ExynosCameraSensorInfoBase.h"
+#endif
 
 namespace android {
 
@@ -2297,6 +2300,52 @@ void makeSFLCommand(CommandInfo* commandInfo, SFL::Command cmd, SFL::BufferType 
     commandInfo->cmd  = cmd;
     commandInfo->type = type;
     commandInfo->pos  = pos;
+}
+#endif
+
+#ifdef SENSOR_NAME_GET_FROM_FILE
+int getSensorIdFromFile(int camId)
+{
+    FILE *fp = NULL;
+    int numread = -1;
+    char sensor_name[50];
+    int sensorName = -1;
+
+    if (camId == CAMERA_ID_BACK) {
+        fp = fopen(SENSOR_NAME_PATH_BACK, "r");
+        if (fp == NULL) {
+            ALOGE("ERR(%s[%d]):failed to open sysfs entry", __FUNCTION__, __LINE__);
+            goto err;
+        }
+    } else if (camId == CAMERA_ID_BACK_1) {
+        fp = fopen(SENSOR_NAME_PATH_BACK_1, "r");
+        if (fp == NULL) {
+            ALOGE("ERR(%s[%d]):failed to open sysfs entry", __FUNCTION__, __LINE__);
+            goto err;
+        }
+    } else {
+        fp = fopen(SENSOR_NAME_PATH_FRONT, "r");
+        if (fp == NULL) {
+            ALOGE("ERR(%s[%d]):failed to open sysfs entry", __FUNCTION__, __LINE__);
+            goto err;
+        }
+    }
+
+    if (fgets(sensor_name, sizeof(sensor_name), fp) == NULL) {
+        ALOGE("ERR(%s[%d]):failed to read sysfs entry", __FUNCTION__, __LINE__);
+        goto err;
+    }
+
+    numread = strlen(sensor_name);
+    ALOGD("DEBUG(%s[%d]):Sensor name is %s(%d)", __FUNCTION__, __LINE__, sensor_name, numread);
+
+    sensorName = atoi(sensor_name);
+
+err:
+    if (fp != NULL)
+        fclose(fp);
+
+    return sensorName;
 }
 #endif
 
