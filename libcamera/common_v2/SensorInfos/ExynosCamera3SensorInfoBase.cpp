@@ -5921,6 +5921,417 @@ ExynosCamera3SensorIMX258Base::ExynosCamera3SensorIMX258Base() : ExynosCamera3Se
     /* END of Camera HAL 3.2 Static Metadatas */
 };
 
+ExynosCamera3SensorS5K3M3Base::ExynosCamera3SensorS5K3M3Base(int cameraId) : ExynosCamera3SensorInfoBase()
+{
+    maxPreviewW = 1920;
+    maxPreviewH = 1080;
+    maxPictureW = 4128;
+    maxPictureH = 3096;
+    maxVideoW = 3840;
+    maxVideoH = 2160;
+    maxSensorW = 4208;
+    maxSensorH = 3120;
+    sensorMarginW = 0;
+    sensorMarginH = 0;
+    sensorMarginBase[LEFT_BASE] = 0;
+    sensorMarginBase[TOP_BASE] = 0;
+    sensorMarginBase[WIDTH_BASE] = 0;
+    sensorMarginBase[HEIGHT_BASE] = 0;
+
+    maxThumbnailW = 512;
+    maxThumbnailH = 384;
+
+    /* Sensor FOV Infos */
+    horizontalViewAngle[SIZE_RATIO_16_9] = 68.0f;
+    horizontalViewAngle[SIZE_RATIO_4_3] = 53.0f;
+    horizontalViewAngle[SIZE_RATIO_1_1] = 41.0f;
+    horizontalViewAngle[SIZE_RATIO_3_2] = 55.2f;
+    horizontalViewAngle[SIZE_RATIO_5_4] = 48.8f;
+    horizontalViewAngle[SIZE_RATIO_5_3] = 58.4f;
+    horizontalViewAngle[SIZE_RATIO_11_9] = 48.8f;
+    verticalViewAngle = 76.5f;
+
+    minFps = 1;
+    maxFps = 30;
+    fNumberNum = 20;
+    fNumberDen = 10;
+    focalLengthNum = 365;
+    focalLengthDen = 100;
+    focusDistanceNum = 0;
+    focusDistanceDen = 0;
+    apertureNum = 185;
+    apertureDen = 100;
+
+    /* Hal1 info - prevent setparam fail */
+#if defined(USE_SUBDIVIDED_EV)
+    minExposureCompensation = -20;
+    maxExposureCompensation = 20;
+    exposureCompensationStep = 0.1f;
+#else
+    minExposureCompensation = -4;
+    maxExposureCompensation = 4;
+    exposureCompensationStep = 0.5f;
+#endif
+
+    maxNumDetectedFaces = 16;
+    maxNumFocusAreas = 2;
+    maxNumMeteringAreas = 0;
+    maxZoomLevel = MAX_ZOOM_LEVEL;
+    maxZoomRatio = MAX_ZOOM_RATIO;
+
+    zoomSupport = true;
+    smoothZoomSupport = false;
+    videoSnapshotSupport = true;
+    videoStabilizationSupport = false;
+    autoWhiteBalanceLockSupport = true;
+    autoExposureLockSupport = true;
+
+    antiBandingList =
+          ANTIBANDING_AUTO
+        | ANTIBANDING_50HZ
+        | ANTIBANDING_60HZ
+        | ANTIBANDING_OFF
+        ;
+
+    effectList =
+          EFFECT_NONE
+        ;
+
+    flashModeList =
+          FLASH_MODE_OFF
+        | FLASH_MODE_AUTO
+        | FLASH_MODE_ON
+        //| FLASH_MODE_RED_EYE
+        | FLASH_MODE_TORCH;
+
+    focusModeList =
+          FOCUS_MODE_AUTO
+        | FOCUS_MODE_INFINITY
+        | FOCUS_MODE_MACRO
+        //| FOCUS_MODE_FIXED
+        //| FOCUS_MODE_EDOF
+        | FOCUS_MODE_CONTINUOUS_VIDEO
+        | FOCUS_MODE_CONTINUOUS_PICTURE
+        | FOCUS_MODE_TOUCH
+        ;
+
+    sceneModeList =
+          SCENE_MODE_AUTO
+        /*| SCENE_MODE_ACTION
+        | SCENE_MODE_PORTRAIT
+        | SCENE_MODE_LANDSCAPE
+        | SCENE_MODE_NIGHT
+        | SCENE_MODE_NIGHT_PORTRAIT
+        | SCENE_MODE_THEATRE
+        | SCENE_MODE_BEACH
+        | SCENE_MODE_SNOW
+        | SCENE_MODE_SUNSET
+        | SCENE_MODE_STEADYPHOTO
+        | SCENE_MODE_FIREWORKS
+        | SCENE_MODE_PARTY
+        | SCENE_MODE_SPORTS
+        | SCENE_MODE_CANDLELIGHT*/
+        ;
+
+    whiteBalanceList =
+          WHITE_BALANCE_AUTO
+        | WHITE_BALANCE_INCANDESCENT
+        | WHITE_BALANCE_FLUORESCENT
+        //| WHITE_BALANCE_WARM_FLUORESCENT
+        | WHITE_BALANCE_DAYLIGHT
+        | WHITE_BALANCE_CLOUDY_DAYLIGHT
+        //| WHITE_BALANCE_TWILIGHT
+        //| WHITE_BALANCE_SHADE
+        ;
+
+    hiddenEffectList =
+          EFFECT_NONE
+        | EFFECT_MONO
+        | EFFECT_NEGATIVE
+        | EFFECT_SEPIA
+        | EFFECT_POSTERIZE
+        | EFFECT_AQUA
+        | EFFECT_BEAUTY_FACE
+        ;
+
+    bnsSupport = false;
+
+    if (bnsSupport == true) {
+        previewSizeLutMax           = sizeof(PREVIEW_SIZE_LUT_3M3) / (sizeof(int) * SIZE_OF_LUT);
+        videoSizeLutMax             = sizeof(VIDEO_SIZE_LUT_3M3)   / (sizeof(int) * SIZE_OF_LUT);
+        pictureSizeLutMax           = sizeof(PICTURE_SIZE_LUT_3M3) / (sizeof(int) * SIZE_OF_LUT);
+        /* videoSizeLutHighSpeed60Max  = sizeof(VIDEO_SIZE_LUT_60FPS_HIGH_SPEED_3M3_BNS) / (sizeof(int) * SIZE_OF_LUT); */
+        /* videoSizeLutHighSpeed120Max = sizeof(VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_3M3_BNS) / (sizeof(int) * SIZE_OF_LUT); */
+
+        previewSizeLut              = PREVIEW_SIZE_LUT_3M3;
+        /* dualPreviewSizeLut          = PREVIEW_SIZE_LUT_3M3_BNS; */ /* no S5K3M3 BNS tuning LUT in common_v2 */
+        videoSizeLut                = VIDEO_SIZE_LUT_3M3;
+        /* videoSizeBnsLut             = VIDEO_SIZE_LUT_3M3_BNS; */
+        pictureSizeLut              = PICTURE_SIZE_LUT_3M3;
+        /* videoSizeLutHighSpeed60     = VIDEO_SIZE_LUT_60FPS_HIGH_SPEED_3M3_BNS; */
+        /* videoSizeLutHighSpeed120    = VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_3M3_BNS; */
+        sizeTableSupport            = true;
+    } else {
+        previewSizeLutMax           = sizeof(PREVIEW_SIZE_LUT_3M3) / (sizeof(int) * SIZE_OF_LUT);
+        pictureSizeLutMax           = sizeof(PICTURE_SIZE_LUT_3M3) / (sizeof(int) * SIZE_OF_LUT);
+        videoSizeLutMax             = sizeof(VIDEO_SIZE_LUT_3M3)   / (sizeof(int) * SIZE_OF_LUT);
+        /* vtcallSizeLutMax            = 0; */
+        /* videoSizeLutHighSpeed60Max  = 0; */
+        /* videoSizeLutHighSpeed120Max = 0; */
+
+        previewSizeLut              = PREVIEW_SIZE_LUT_3M3;
+        pictureSizeLut              = PICTURE_SIZE_LUT_3M3;
+        videoSizeLut                = VIDEO_SIZE_LUT_3M3;
+        /* videoSizeBnsLut             = NULL; */
+        /* videoSizeLutHighSpeed       = NULL; */ /* 3M3: no 60/120fps LUT */
+        /* videoSizeLutHighSpeed60     = NULL; */
+        /* videoSizeLutHighSpeed120    = NULL; */
+        /* vtcallSizeLut               = NULL; */
+        sizeTableSupport            = true;
+    }
+
+    /* Set the max of preview/picture/video lists */
+    rearPreviewListMax      = sizeof(S5K3M3_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    rearPictureListMax      = sizeof(S5K3M3_PICTURE_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenRearPreviewListMax    = sizeof(S5K3M3_HIDDEN_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenRearPictureListMax    = sizeof(S5K3M3_HIDDEN_PICTURE_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    thumbnailListMax    = sizeof(S5K3M3_THUMBNAIL_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    rearVideoListMax        = sizeof(S5K3M3_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    hiddenRearVideoListMax    = sizeof(S5K3M3_HIDDEN_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+    /* highSpeedVideoListMax = 0; */        /* 3M3 has no high-speed video list */
+    rearFPSListMax        = sizeof(S5K3M3_FPS_RANGE_LIST) / (sizeof(int) * 2);
+    hiddenRearFPSListMax    = sizeof(S5K3M3_HIDDEN_FPS_RANGE_LIST) / (sizeof(int) * 2);
+    /* highSpeedVideoFPSListMax = 0; */
+
+    /* Set supported preview/picture/video lists */
+    rearPreviewList     = S5K3M3_PREVIEW_LIST;
+    rearPictureList     = S5K3M3_PICTURE_LIST;
+    hiddenRearPreviewList   = S5K3M3_HIDDEN_PREVIEW_LIST;
+    hiddenRearPictureList   = S5K3M3_HIDDEN_PICTURE_LIST;
+    thumbnailList   = S5K3M3_THUMBNAIL_LIST;
+    rearVideoList       = S5K3M3_VIDEO_LIST;
+    hiddenRearVideoList   = S5K3M3_HIDDEN_VIDEO_LIST;
+    /* highSpeedVideoList = NULL; */
+    rearFPSList       = S5K3M3_FPS_RANGE_LIST;
+    hiddenRearFPSList   = S5K3M3_HIDDEN_FPS_RANGE_LIST;
+    /* highSpeedVideoFPSList = NULL; */
+
+    /*
+    ** Camera HAL 3.2 Static Metadatas
+    **
+    ** The order of declaration follows the order of
+    ** Android Camera HAL3.2 Properties.
+    ** Please refer the "/system/media/camera/docs/docs.html"
+    */
+
+    /* lensFacing, supportedHwLevel are keys for selecting some availability table below */
+    supportedHwLevel = ANDROID_INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED;
+    lensFacing = ANDROID_LENS_FACING_FRONT;
+    switch (supportedHwLevel) {
+    case ANDROID_INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED:
+        capabilities = AVAILABLE_CAPABILITIES_LIMITED;
+        requestKeys = AVAILABLE_REQUEST_KEYS_LIMITED;
+        resultKeys = AVAILABLE_RESULT_KEYS_LIMITED;
+        characteristicsKeys = AVAILABLE_CHARACTERISTICS_KEYS_LIMITED;
+        capabilitiesLength = ARRAY_LENGTH(AVAILABLE_CAPABILITIES_LIMITED);
+        requestKeysLength = ARRAY_LENGTH(AVAILABLE_REQUEST_KEYS_LIMITED);
+        resultKeysLength = ARRAY_LENGTH(AVAILABLE_RESULT_KEYS_LIMITED);
+        characteristicsKeysLength = ARRAY_LENGTH(AVAILABLE_CHARACTERISTICS_KEYS_LIMITED);
+        break;
+    case ANDROID_INFO_SUPPORTED_HARDWARE_LEVEL_FULL:
+        capabilities = AVAILABLE_CAPABILITIES_FULL;
+        requestKeys = AVAILABLE_REQUEST_KEYS_FULL;
+        resultKeys = AVAILABLE_RESULT_KEYS_FULL;
+        characteristicsKeys = AVAILABLE_CHARACTERISTICS_KEYS_FULL;
+        capabilitiesLength = ARRAY_LENGTH(AVAILABLE_CAPABILITIES_FULL);
+        requestKeysLength = ARRAY_LENGTH(AVAILABLE_REQUEST_KEYS_FULL);
+        resultKeysLength = ARRAY_LENGTH(AVAILABLE_RESULT_KEYS_FULL);
+        characteristicsKeysLength = ARRAY_LENGTH(AVAILABLE_CHARACTERISTICS_KEYS_FULL);
+        break;
+    case ANDROID_INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY:
+        capabilities = AVAILABLE_CAPABILITIES_LEGACY;
+        requestKeys = AVAILABLE_REQUEST_KEYS_LEGACY;
+        resultKeys = AVAILABLE_RESULT_KEYS_LEGACY;
+        characteristicsKeys = AVAILABLE_CHARACTERISTICS_KEYS_LEGACY;
+        capabilitiesLength = ARRAY_LENGTH(AVAILABLE_CAPABILITIES_LEGACY);
+        requestKeysLength = ARRAY_LENGTH(AVAILABLE_REQUEST_KEYS_LEGACY);
+        resultKeysLength = ARRAY_LENGTH(AVAILABLE_RESULT_KEYS_LEGACY);
+        characteristicsKeysLength = ARRAY_LENGTH(AVAILABLE_CHARACTERISTICS_KEYS_LEGACY);
+        break;
+    default:
+        ALOGE("ERR(%s[%d]):Invalid supported HW level(%d)", __FUNCTION__, __LINE__,
+                supportedHwLevel);
+        break;
+    }
+
+    switch (lensFacing) {
+    case ANDROID_LENS_FACING_FRONT:
+        aeModes = AVAILABLE_AE_MODES_FRONT;
+        afModes = AVAILABLE_AF_MODES_FRONT;
+        aeModesLength = ARRAY_LENGTH(AVAILABLE_AE_MODES_FRONT);
+        afModesLength = ARRAY_LENGTH(AVAILABLE_AF_MODES_FRONT);
+        break;
+    case ANDROID_LENS_FACING_BACK:
+        aeModes = AVAILABLE_AE_MODES_BACK;
+        afModes = AVAILABLE_AF_MODES_BACK;
+        aeModesLength = ARRAY_LENGTH(AVAILABLE_AE_MODES_BACK);
+        afModesLength = ARRAY_LENGTH(AVAILABLE_AF_MODES_BACK);
+        break;
+    default:
+        ALOGE("ERR(%s[%d]):Invalid lens facing info(%d)", __FUNCTION__, __LINE__,
+                lensFacing);
+        break;
+    }
+
+    /* Android ColorCorrection Static Metadata */
+    colorAberrationModes = AVAILABLE_COLOR_CORRECTION_ABERRATION_MODES;
+    colorAberrationModesLength = ARRAY_LENGTH(AVAILABLE_COLOR_CORRECTION_ABERRATION_MODES);
+
+    /* Android Control Static Metadata */
+    antiBandingModes = AVAILABLE_ANTIBANDING_MODES;
+#if defined(USE_SUBDIVIDED_EV)
+    exposureCompensationRange[MIN] = -20;
+    exposureCompensationRange[MAX] = 20;
+    exposureCompensationStep = 0.1f;
+#else
+    exposureCompensationRange[MIN] = -4;
+    exposureCompensationRange[MAX] = 4;
+    exposureCompensationStep = 0.5f;
+#endif
+    effectModes = AVAILABLE_EFFECT_MODES;
+    sceneModes = AVAILABLE_SCENE_MODES;
+    videoStabilizationModes = AVAILABLE_VIDEO_STABILIZATION_MODES;
+    awbModes = AVAILABLE_AWB_MODES;
+    controlModes = AVAILABLE_CONTROL_MODES;
+    controlModesLength = ARRAY_LENGTH(AVAILABLE_CONTROL_MODES);
+    max3aRegions[AE] = 1;
+    max3aRegions[AWB] = 1;
+    max3aRegions[AF] = 1;
+    sceneModeOverrides = SCENE_MODE_OVERRIDES;
+    aeLockAvailable = ANDROID_CONTROL_AE_LOCK_AVAILABLE_TRUE;
+    awbLockAvailable = ANDROID_CONTROL_AWB_LOCK_AVAILABLE_TRUE;
+    antiBandingModesLength = ARRAY_LENGTH(AVAILABLE_ANTIBANDING_MODES);
+    effectModesLength = ARRAY_LENGTH(AVAILABLE_EFFECT_MODES);
+    sceneModesLength = ARRAY_LENGTH(AVAILABLE_SCENE_MODES);
+    videoStabilizationModesLength = ARRAY_LENGTH(AVAILABLE_VIDEO_STABILIZATION_MODES);
+    awbModesLength = ARRAY_LENGTH(AVAILABLE_AWB_MODES);
+    sceneModeOverridesLength = ARRAY_LENGTH(SCENE_MODE_OVERRIDES);
+
+    /* Android Edge Static Metadata */
+    edgeModes = AVAILABLE_EDGE_MODES;
+    edgeModesLength = ARRAY_LENGTH(AVAILABLE_EDGE_MODES);
+
+    /* Android Flash Static Metadata */
+    flashAvailable = ANDROID_FLASH_INFO_AVAILABLE_FALSE;
+    chargeDuration = 0L;
+    colorTemperature = 0;
+    maxEnergy = 0;
+
+    /* Android Hot Pixel Static Metadata */
+    hotPixelModes = AVAILABLE_HOT_PIXEL_MODES;
+    hotPixelModesLength = ARRAY_LENGTH(AVAILABLE_HOT_PIXEL_MODES);
+
+    /* Android Lens Static Metadata */
+    aperture = 1.85f;
+    fNumber = 2.0f;
+    filterDensity = 0.0f;
+    focalLength = 3.65f;
+    hyperFocalDistance = 1.0f / 3.65f;
+    minimumFocusDistance = 1.0f / 0.1f;
+    shadingMapSize[WIDTH] = 1;
+    shadingMapSize[HEIGHT] = 1;
+    focusDistanceCalibration = ANDROID_LENS_INFO_FOCUS_DISTANCE_CALIBRATION_CALIBRATED;
+    opticalAxisAngle[0] = 0.0f;
+    opticalAxisAngle[1] = 0.0f;
+    lensPosition[X_3D] = 0.0f;
+    lensPosition[Y_3D] = 20.0f;
+    lensPosition[Z_3D] = -5.0f;
+    opticalStabilization = AVAILABLE_OPTICAL_STABILIZATION_BACK;
+    opticalStabilizationLength = ARRAY_LENGTH(AVAILABLE_OPTICAL_STABILIZATION_BACK);
+
+    /* Android Noise Reduction Static Metadata */
+    noiseReductionModes = AVAILABLE_NOISE_REDUCTION_MODES;
+    noiseReductionModesLength = ARRAY_LENGTH(AVAILABLE_NOISE_REDUCTION_MODES);
+
+    /* Android Request Static Metadata */
+    maxNumOutputStreams[RAW] = 1; //RAW
+    maxNumOutputStreams[PROCESSED] = 3; //PROC
+    maxNumOutputStreams[PROCESSED_STALL] = 1; //PROC_STALL
+    maxNumInputStreams = 0;
+    maxPipelineDepth = NUM_REQUEST_BLOCK_MAX;
+    partialResultCount = 1;
+
+    /* Android Scaler Static Metadata */
+    zoomSupport = true;
+    smoothZoomSupport = false;
+    maxZoomLevel = MAX_ZOOM_LEVEL;
+    maxZoomRatio = MAX_ZOOM_RATIO;
+    stallDurations = AVAILABLE_STALL_DURATIONS;
+    croppingType = ANDROID_SCALER_CROPPING_TYPE_FREEFORM;
+    stallDurationsLength = ARRAY_LENGTH(AVAILABLE_STALL_DURATIONS);
+
+    /* Android Sensor Static Metadata */
+    sensitivityRange[MIN] = 50;
+    sensitivityRange[MAX] = 1600;
+    colorFilterArrangement = ANDROID_SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_GRBG;
+    exposureTimeRange[MIN] = 14000L;
+    exposureTimeRange[MAX] = 125000000L;
+    maxFrameDuration = 500000000L;
+    sensorPhysicalSize[WIDTH] = 3.20f;
+    sensorPhysicalSize[HEIGHT] = 2.40f;
+    whiteLevel = 1023;
+    timestampSource = ANDROID_SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN;
+    referenceIlluminant1 = ANDROID_SENSOR_REFERENCE_ILLUMINANT1_D65;
+    referenceIlluminant2 = ANDROID_SENSOR_REFERENCE_ILLUMINANT1_STANDARD_A;
+    blackLevelPattern[R] = 0;
+    blackLevelPattern[GR] = 0;
+    blackLevelPattern[GB] = 0;
+    blackLevelPattern[B] = 0;
+    maxAnalogSensitivity = 640;
+    orientation = BACK_ROTATION;
+    profileHueSatMapDimensions[HUE] = 1;
+    profileHueSatMapDimensions[SATURATION] = 2;
+    profileHueSatMapDimensions[VALUE] = 1;
+    testPatternModes = AVAILABLE_TEST_PATTERN_MODES;
+    testPatternModesLength = ARRAY_LENGTH(AVAILABLE_TEST_PATTERN_MODES);
+    colorTransformMatrix1 = NULL;
+    colorTransformMatrix2 = NULL;
+    forwardMatrix1 = NULL;
+    forwardMatrix2 = NULL;
+    calibration1 = NULL;
+    calibration2 = NULL;
+
+    /* Android Statistics Static Metadata */
+    faceDetectModes = AVAILABLE_FACE_DETECT_MODES;
+    faceDetectModesLength = ARRAY_LENGTH(AVAILABLE_FACE_DETECT_MODES);
+    histogramBucketCount = 64;
+    maxNumDetectedFaces = 16;
+    maxHistogramCount = 1000;
+    maxSharpnessMapValue = 1000;
+    sharpnessMapSize[WIDTH] = 64;
+    sharpnessMapSize[HEIGHT] = 64;
+    hotPixelMapModes = AVAILABLE_HOT_PIXEL_MAP_MODES;
+    hotPixelMapModesLength = ARRAY_LENGTH(AVAILABLE_HOT_PIXEL_MAP_MODES);
+    lensShadingMapModes = AVAILABLE_LENS_SHADING_MAP_MODES;
+    lensShadingMapModesLength = ARRAY_LENGTH(AVAILABLE_LENS_SHADING_MAP_MODES);
+    shadingAvailableModes = SHADING_AVAILABLE_MODES;
+    shadingAvailableModesLength = ARRAY_LENGTH(SHADING_AVAILABLE_MODES);
+
+    /* Android Tone Map Static Metadata */
+    tonemapCurvePoints = 128;
+    toneMapModes = AVAILABLE_TONE_MAP_MODES;
+    toneMapModesLength = ARRAY_LENGTH(AVAILABLE_TONE_MAP_MODES);
+
+    /* Android LED Static Metadata */
+    leds = AVAILABLE_LEDS;
+    ledsLength = ARRAY_LENGTH(AVAILABLE_LEDS);
+
+    /* Android Sync Static Metadata */
+    maxLatency = ANDROID_SYNC_MAX_LATENCY_PER_FRAME_CONTROL; //0
+    /* END of Camera HAL 3.2 Static Metadatas */
+};
+
+
 ExynosCamera3SensorOV5670Base::ExynosCamera3SensorOV5670Base() : ExynosCamera3SensorInfoBase()
 {
     maxPreviewW = 1920;

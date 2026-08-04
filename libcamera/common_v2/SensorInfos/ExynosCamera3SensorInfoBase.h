@@ -75,6 +75,18 @@ public:
     ExynosCamera3SensorS5K3P3Base();
 };
 
+/* S5K3P8SP is not used by any 7870 device in the common_v2 world; this alias
+ * only exists so the shared device-side SensorInfos table compiles. */
+struct ExynosCamera3SensorS5K3P8SPBase : public ExynosCamera3SensorS5K3P3Base {
+protected:
+    ExynosCamera3SensorS5K3P8SPBase() : ExynosCamera3SensorS5K3P3Base() {}
+    /* cameraId form kept for parity with the device-side sensor table */
+    ExynosCamera3SensorS5K3P8SPBase(int cameraId) : ExynosCamera3SensorS5K3P3Base()
+    {
+        (void)cameraId;
+    }
+};
+
 struct ExynosCamera3SensorS5K2P2_12MBase : public ExynosCamera3SensorInfoBase {
 private:
 
@@ -136,6 +148,13 @@ private:
 
 public:
     ExynosCamera3SensorS5K4H5Base();
+};
+
+/* S5K4H5YC is not used by any 7870 device in the common_v2 world; this alias
+ * only exists so the shared device-side SensorInfos table compiles. */
+struct ExynosCamera3SensorS5K4H5YCBase : public ExynosCamera3SensorS5K4H5Base {
+protected:
+    ExynosCamera3SensorS5K4H5YCBase() : ExynosCamera3SensorS5K4H5Base() {}
 };
 
 struct ExynosCamera3SensorS5K6A3Base : public ExynosCamera3SensorInfoBase {
@@ -229,6 +248,14 @@ private:
 
 public:
     ExynosCamera3SensorIMX258Base();
+};
+
+struct ExynosCamera3SensorS5K3M3Base : public ExynosCamera3SensorInfoBase {
+public:
+    ExynosCamera3SensorS5K3M3Base(int cameraId);
+
+protected:
+    ExynosCamera3SensorS5K3M3Base() {}
 };
 
 struct ExynosCamera3SensorOV5670Base : public ExynosCamera3SensorInfoBase {
