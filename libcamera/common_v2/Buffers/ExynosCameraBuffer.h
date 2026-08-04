@@ -191,7 +191,7 @@ struct ExynosCameraBuffer {
         for (int i = 0; i < EXYNOS_CAMERA_BUFFER_MAX_PLANES; i++) {
             if (fd[i]  != other.fd[i]
             || size[i] != other.size[i]
-            || bytesPerLine[i] != bytesPerLine[i]
+            || bytesPerLine[i] != other.bytesPerLine[i]
             || addr[i] != other.addr[i]) {
                 ret = false;
                 break;
