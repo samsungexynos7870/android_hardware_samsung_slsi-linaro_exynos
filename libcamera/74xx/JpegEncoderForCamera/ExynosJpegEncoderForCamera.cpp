@@ -63,6 +63,7 @@ ExynosJpegEncoderForCamera::ExynosJpegEncoderForCamera()
     m_thumbnailH = 0;
     m_thumbnailQuality = JPEG_THUMBNAIL_QUALITY;
     m_exynosThumbCSC = NULL;
+    m_extScalerNum = 0;
     m_ionJpegClient = 0;
     memset(&m_stThumbInBuf, 0, sizeof(m_stThumbInBuf));
     memset(&m_stThumbTempBuf, 0, sizeof(m_stThumbTempBuf));
@@ -174,6 +175,12 @@ int ExynosJpegEncoderForCamera::EnableHWFC(void)
      * SW/libhwjpeg path. Kept for 7870-era (J5-family) API compatibility.
      */
     return ERROR_NONE;
+}
+
+void ExynosJpegEncoderForCamera::setExtScalerNum(int extScalerNum)
+{
+    /* 7870-era external scaler node for thumbnail CSC (defaults to CSC_HW_NUM_FOR_JPEG) */
+    m_extScalerNum = extScalerNum;
 }
 
 int ExynosJpegEncoderForCamera::destroy(void)
@@ -1038,7 +1045,10 @@ int ExynosJpegEncoderForCamera::encodeThumbnail(unsigned int *size, bool useMain
         m_exynosThumbCSC = csc_init(cscMethod);
         if (m_exynosThumbCSC == NULL)
             ALOGE("ERR(%s):csc_init() fail", __FUNCTION__);
-        csc_set_hw_property(m_exynosThumbCSC, CSC_HW_PROPERTY_FIXED_NODE, CSC_HW_NUM_FOR_JPEG);
+        /* prefer the externally provided scaler node (7870-era API);
+           falls back to the fixed JPEG GSC node (same value on 7870) */
+        csc_set_hw_property(m_exynosThumbCSC, CSC_HW_PROPERTY_FIXED_NODE,
+                            (m_extScalerNum != 0) ? m_extScalerNum : CSC_HW_NUM_FOR_JPEG);
         /********************/
 
         switch (iTempColorformat) {
