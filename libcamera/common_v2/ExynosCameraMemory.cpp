@@ -859,6 +859,7 @@ int ExynosCameraStreamAllocator::lock(
     void  *grallocAddr[3] = {NULL};
     const private_handle_t *priv_handle = NULL;
     int   grallocFd[3] = {0};
+    bool  useYcbcrLock = false;
     ExynosCameraDurationTimer   lockbufferTimer;
 
     if (bufHandle == NULL) {
@@ -878,8 +879,51 @@ int ExynosCameraStreamAllocator::lock(
     usage  = m_allocator->usage;
     format = m_allocator->format;
 
-    switch (format) {
-    case HAL_PIXEL_FORMAT_YCbCr_420_888:
+    /*
+     * The legacy gralloc module (exynos5 common gralloc version 0, as well as
+     * ARM gralloc1) rejects gralloc_lock() for buffers whose internal format
+     * is YUV and demands gralloc_lock_ycbcr() instead. Preview/record streams
+     * arrive here as HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED, which the
+     * gralloc format chooser maps to an exynos YUV format (e.g. NV21M), so
+     * the lock method must be chosen by the buffer's real format carried in
+     * the private handle, not only by the stream format.
+     */
+    priv_handle = private_handle_t::dynamicCast(**bufHandle);
+
+    if (priv_handle == NULL) {
+        ALOGE("ERR(%s):priv_handle is NULL", __FUNCTION__);
+        ret = INVALID_OPERATION;
+        goto func_exit;
+    }
+
+    useYcbcrLock = (format == HAL_PIXEL_FORMAT_YCbCr_420_888)
+            || (priv_handle->frameworkFormat == HAL_PIXEL_FORMAT_YCbCr_420_888);
+
+    if (useYcbcrLock == false) {
+        switch (priv_handle->format) {
+        case HAL_PIXEL_FORMAT_EXYNOS_ARGB_8888:
+        case HAL_PIXEL_FORMAT_RGBA_8888:
+        case HAL_PIXEL_FORMAT_RGBX_8888:
+        case HAL_PIXEL_FORMAT_BGRA_8888:
+        case HAL_PIXEL_FORMAT_RGB_888:
+        case HAL_PIXEL_FORMAT_RGB_565:
+        case HAL_PIXEL_FORMAT_RAW16:
+        case HAL_PIXEL_FORMAT_RAW_OPAQUE:
+        case HAL_PIXEL_FORMAT_BLOB:
+        case HAL_PIXEL_FORMAT_YCbCr_422_I:
+        case HAL_PIXEL_FORMAT_Y8:
+        case HAL_PIXEL_FORMAT_Y16:
+        case HAL_PIXEL_FORMAT_YV12:
+        case HAL_PIXEL_FORMAT_RGBA_1010102:
+        case HAL_PIXEL_FORMAT_RGBA_FP16:
+            break;
+        default:
+            useYcbcrLock = true;
+            break;
+        }
+    }
+
+    if (useYcbcrLock == true) {
         android_ycbcr ycbcr;
         lockbufferTimer.start();
         ret = m_grallocHal->lock_ycbcr(
@@ -891,8 +935,7 @@ int ExynosCameraStreamAllocator::lock(
                 &ycbcr);
         lockbufferTimer.stop();
         grallocAddr[0] = ycbcr.y;
-        break;
-    default:
+    } else {
         lockbufferTimer.start();
         ret = m_grallocHal->lock(
                 m_grallocHal,
@@ -902,7 +945,6 @@ int ExynosCameraStreamAllocator::lock(
                 width, height,
                 grallocAddr);
         lockbufferTimer.stop();
-        break;
     }
 
 #if defined (EXYNOS_CAMERA_MEMORY_TRACE_GRALLOC_PERFORMANCE)
