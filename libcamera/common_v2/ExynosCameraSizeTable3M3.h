@@ -54,8 +54,8 @@ static int PREVIEW_SIZE_LUT_3M3[][SIZE_OF_LUT] =
 
     /* 16:9 (Single, Dual) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(2322 + 10),   /* [sensor ] */
+      4144      , 2332      ,   /* [bns    ] */
       4128      , 2322      ,   /* [bcrop  ] */
       4128      , 2322      ,   /* [bds    ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -66,8 +66,8 @@ static int PREVIEW_SIZE_LUT_3M3[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single, Dual) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       4128      , 3096      ,   /* [bcrop  ] */
       4128      , 3096      ,   /* [bds    ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -78,8 +78,8 @@ static int PREVIEW_SIZE_LUT_3M3[][SIZE_OF_LUT] =
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       2976      , 2976      ,   /* [bcrop  ] */
       2976      , 2976      ,   /* [bds    ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -90,10 +90,10 @@ static int PREVIEW_SIZE_LUT_3M3[][SIZE_OF_LUT] =
     },
     /* 3:2 (Single, Dual) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2804      ,   /* [bcrop  ] */
-      4208      , 2804      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2752      ,   /* [bcrop  ] */
+      4128      , 2752      ,   /* [bds    ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1616      , 1080      ,   /* [target ] *//* w=1620, Reduced for 16 pixel align */
 #else
@@ -102,10 +102,10 @@ static int PREVIEW_SIZE_LUT_3M3[][SIZE_OF_LUT] =
     },
     /* 5:4 (Single, Dual) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3888      , 3120      ,   /* [bcrop  ] */
-      3888      , 3120      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3872      , 3096      ,   /* [bcrop  ] */
+      3872      , 3096      ,   /* [bds    ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1344      , 1080      ,   /* [target ] */ /* w=1350, Reduced for 16 pixel align */
 #else
@@ -114,10 +114,10 @@ static int PREVIEW_SIZE_LUT_3M3[][SIZE_OF_LUT] =
     },
     /* 5:3 (Single, Dual) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2512      ,   /* [bcrop  ] */
-      4208      , 2512      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2476      ,   /* [bcrop  ] */
+      4128      , 2476      ,   /* [bds    ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1792      , 1080      ,   /* [target ] *//* w=1800, Reduced for 16 pixel align */
 #else
@@ -126,10 +126,10 @@ static int PREVIEW_SIZE_LUT_3M3[][SIZE_OF_LUT] =
     },
     /* 11:9 (Single, Dual) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3808      , 3120      ,   /* [bcrop  ] */
-      3808      , 3120      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3784      , 3096      ,   /* [bcrop  ] */
+      3784      , 3096      ,   /* [bds    ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1312      , 1080      ,   /* [target ] *//* w=1320, Reduced for 16 pixel align */
 #else
@@ -146,7 +146,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
 
     /* 16:9 (Single, Dual) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2752      , 1548      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -159,7 +159,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single, Dual) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2752      , 2064      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -172,7 +172,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2080      , 2080      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -185,7 +185,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 3:2 (Single, Dual) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2800      , 1868      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -198,7 +198,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 5:4 (Single, Dual) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2800      , 1684      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -211,7 +211,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 5:3 (Single, Dual) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2800      , 1684      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -224,7 +224,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 11:9 (Single, Dual) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2544      , 2080      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -245,7 +245,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
 
     /* 16:9 (Single, Dual) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1184      ,   /* [bcrop  ] */
       1920      , 1080      ,   /* [bds    ] */
@@ -253,7 +253,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single, Dual) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1560      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -266,7 +266,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       1560      , 1560      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -279,7 +279,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 3:2 (Single, Dual) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1402      ,   /* [bcrop  ] */
       1616      , 1080      ,   /* [bds    ] *//* w=1620, Reduced for 16 pixel align */
@@ -287,7 +287,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 5:4 (Single, Dual) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       1952      , 1560      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -300,7 +300,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 5:3 (Single, Dual) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1264      ,   /* [bcrop  ] */
       1792      , 1080      ,   /* [bds    ] *//* w=1800, Reduced for 16 pixel align */
@@ -308,7 +308,7 @@ static int PREVIEW_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 11:9 (Single, Dual) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       1920      , 1560      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
@@ -329,8 +329,8 @@ static int PREVIEW_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
 
     /* 16:9 (Single, Dual) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       4128      , 2322      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       2656      , 1494      ,   /* [bds    ] */
@@ -342,8 +342,8 @@ static int PREVIEW_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single, Dual) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       4128      , 3096      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1984      , 1488      ,   /* [bds    ] */
@@ -355,8 +355,8 @@ static int PREVIEW_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       2976      , 2976      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1488      , 1488      ,   /* [bds    ] */
@@ -368,9 +368,9 @@ static int PREVIEW_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
     },
     /* 3:2 (Single, Dual) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2804      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2752      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1616      , 1080      ,   /* [bds    ] *//* w=1620, Reduced for 16 pixel align */
       1616      , 1080      ,   /* [target ] */
@@ -381,9 +381,9 @@ static int PREVIEW_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
     },
     /* 5:4 (Single, Dual) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3888      , 3120      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3872      , 3096      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1344      , 1080      ,   /* [bds    ] *//* w=1350, Reduced for 16 pixel align */
       1344      , 1080      ,   /* [target ] */
@@ -394,9 +394,9 @@ static int PREVIEW_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
     },
     /* 5:3 (Single, Dual) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2512      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2476      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1792      , 1080      ,   /* [bds    ] *//* w=1800, Reduced for 16 pixel align */
       1792      , 1080      ,   /* [target ] */
@@ -407,9 +407,9 @@ static int PREVIEW_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
     },
     /* 11:9 (Single, Dual) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3808      , 3120      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3784      , 3096      ,   /* [bcrop  ] */
 #ifdef LIMIT_SCP_SIZE_UNTIL_FHD_ON_CAPTURE
       1312      , 1080      ,   /* [bds    ] *//* w=1320, Reduced for 16 pixel align */
       1312      , 1080      ,   /* [target ] */
@@ -428,24 +428,24 @@ static int PICTURE_SIZE_LUT_3M3[][SIZE_OF_LUT] =
 
     /* 16:9 (Single, Dual) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(2322 + 10),   /* [sensor ] */
+      4144      , 2332      ,   /* [bns    ] */
       4128      , 2322      ,   /* [bcrop  ] */
       4128      , 2322      ,   /* [bds    ] */
       4128      , 2322      ,   /* [target ] */
     },
     /* 4:3 (Single, Dual) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       4128      , 3096      ,   /* [bcrop  ] */
       4128      , 3096      ,   /* [bds    ] */
       4128      , 3096      ,   /* [target ] */
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       2976      , 2976      ,   /* [bcrop  ] */
       2976      , 2976      ,   /* [bds    ] */
       2976      , 2976      ,   /* [target ] */
@@ -460,8 +460,8 @@ static int VIDEO_SIZE_LUT_3M3[][SIZE_OF_LUT] =
 
     /* 16:9 (Single) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(2322 + 10),   /* [sensor ] */
+      4144      , 2332      ,   /* [bns    ] */
       4128      , 2322      ,   /* [bcrop  ] */
       4128      , 2322      ,   /* [bds    ] */
 #if defined(LIMIT_SCP_SIZE_UNTIL_FHD_ON_RECORDING)
@@ -472,50 +472,50 @@ static int VIDEO_SIZE_LUT_3M3[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       4128      , 3096      ,   /* [bcrop  ] */
       4128      , 3096      ,   /* [bds    ] */
       1440      , 1080      ,   /* [target ] */
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       2976      , 2976      ,   /* [bcrop  ] */
       2976      , 2976      ,   /* [bds    ] */
       1088      , 1088      ,   /* [target ] *//* w=1080, Increased for 16 pixel align */
     },
     /* 3:2 (Single) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2804      ,   /* [bcrop  ] */
-      4208      , 2804      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2752      ,   /* [bcrop  ] */
+      4128      , 2752      ,   /* [bds    ] */
       1616      , 1080      ,   /* [target ] *//* w=1620, Reduced for 16 pixel align */
     },
     /* 5:4 (Single) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3888      , 3120      ,   /* [bcrop  ] */
-      3888      , 3120      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3872      , 3096      ,   /* [bcrop  ] */
+      3872      , 3096      ,   /* [bds    ] */
       1344      , 1080      ,   /* [target ] *//* w=1350, Reduced for 16 pixel align */
     },
     /* 5:3 (Single) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2512      ,   /* [bcrop  ] */
-      4208      , 2512      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2476      ,   /* [bcrop  ] */
+      4128      , 2476      ,   /* [bds    ] */
       1792      , 1080      ,   /* [target ] *//* w=1800, Reduced for 16 pixel align */
     },
     /* 11:9 (Single) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3808      , 3120      ,   /* [bcrop  ] */
-      3808      , 3120      ,   /* [bds    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3784      , 3096      ,   /* [bcrop  ] */
+      3784      , 3096      ,   /* [bds    ] */
       1312      , 1080      ,   /* [target ] *//* w=1320, Reduced for 16 pixel align */
     }
 };
@@ -528,7 +528,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
 
     /* 16:9 (Single) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2752      , 1548      ,   /* [bcrop  ] */
 #if defined(USE_BDS_RECORDING)
@@ -551,7 +551,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2752      , 2064      ,   /* [bcrop  ] */
       1440      , 1080      ,   /* [bds    ] */
@@ -559,7 +559,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2080      , 2080      ,   /* [bcrop  ] */
       1088      , 1088      ,   /* [bds    ] *//* w=1080, Increased for 16 pixel align */
@@ -567,7 +567,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 3:2 (Single) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2800      , 1868      ,   /* [bcrop  ] */
       1616      , 1080      ,   /* [bds    ] *//* w=1620, Reduced for 16 pixel align */
@@ -575,7 +575,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 5:4 (Single) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2608      , 2808      ,   /* [bcrop  ] */
       1344      , 1080      ,   /* [bds    ] *//* w=1350, Reduced for 16 pixel align */
@@ -583,7 +583,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 5:3 (Single) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2800      , 1684      ,   /* [bcrop  ] */
       1792      , 1080      ,   /* [bds    ] *//* w=1800, Reduced for 16 pixel align */
@@ -591,7 +591,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_15[][SIZE_OF_LUT] =
     },
     /* 11:9 (Single) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2800      , 2080      ,   /* [bns    ] */
       2544      , 2080      ,   /* [bcrop  ] */
       1312      , 1080      ,   /* [bds    ] *//* w=1320, Reduced for 16 pixel align */
@@ -607,7 +607,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
 
     /* 16:9 (Single) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1184      ,   /* [bcrop  ] */
 #if defined(USE_BDS_RECORDING)
@@ -620,7 +620,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1560      ,   /* [bcrop  ] */
       1440      , 1080      ,   /* [bds    ] */
@@ -628,7 +628,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       1560      , 1560      ,   /* [bcrop  ] */
       1088      , 1088      ,   /* [bds    ] *//* w=1080, Increased for 16 pixel align */
@@ -636,7 +636,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 3:2 (Single) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1402      ,   /* [bcrop  ] */
       1616      , 1080      ,   /* [bds    ] *//* w=1620, Reduced for 16 pixel align */
@@ -644,7 +644,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 5:4 (Single) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       1952      , 1560      ,   /* [bcrop  ] */
       1344      , 1080      ,   /* [bds    ] *//* w=1350, Reduced for 16 pixel align */
@@ -652,7 +652,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 5:3 (Single) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       2104      , 1264      ,   /* [bcrop  ] */
       1792      , 1080      ,   /* [bds    ] *//* w=1800, Reduced for 16 pixel align */
@@ -660,7 +660,7 @@ static int VIDEO_SIZE_LUT_3M3_BNS_20[][SIZE_OF_LUT] =
     },
     /* 11:9 (Single) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
       2104      , 1560      ,   /* [bns    ] */
       1920      , 1560      ,   /* [bcrop  ] */
       1312      , 1080      ,   /* [bds    ] *//* w=1320, Reduced for 16 pixel align */
@@ -676,8 +676,8 @@ static int VIDEO_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
 
     /* 16:9 (Single) */
     { SIZE_RATIO_16_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       4128      , 2322      ,   /* [bcrop  ] */
 #if defined(LIMIT_SCP_SIZE_UNTIL_FHD_ON_RECORDING)
       2656      , 1494      ,   /* [bds    ] *//* UHD (3840x2160) special handling in ExynosCameraParameters class */
@@ -689,49 +689,49 @@ static int VIDEO_SIZE_LUT_3M3_BDS[][SIZE_OF_LUT] =
     },
     /* 4:3 (Single) */
     { SIZE_RATIO_4_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       4128      , 3096      ,   /* [bcrop  ] */
       1984      , 1488      ,   /* [bds    ] */
       1440      , 1080      ,   /* [target ] */
     },
     /* 1:1 (Single, Dual) */
     { SIZE_RATIO_1_1,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
       2976      , 2976      ,   /* [bcrop  ] */
       1488      , 1488      ,   /* [bds    ] *//* w=1080, Increased for 16 pixel align */
       1088      , 1088      ,   /* [target ] */
     },
     /* 3:2 (Single) */
     { SIZE_RATIO_3_2,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2804      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2752      ,   /* [bcrop  ] */
       1616      , 1080      ,   /* [bds    ] *//* w=1620, Reduced for 16 pixel align */
       1616      , 1080      ,   /* [target ] */
     },
     /* 5:4 (Single) */
     { SIZE_RATIO_5_4,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3888      , 3120      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3872      , 3096      ,   /* [bcrop  ] */
       1344      , 1080      ,   /* [bds    ] *//* w=1350, Reduced for 16 pixel align */
       1344      , 1080      ,   /* [target ] */
     },
     /* 5:3 (Single) */
     { SIZE_RATIO_5_3,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      4208      , 2512      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      4128      , 2476      ,   /* [bcrop  ] */
       1792      , 1080      ,   /* [bds    ] *//* w=1800, Reduced for 16 pixel align */
       1792      , 1080      ,   /* [target ] */
     },
     /* 11:9 (Single) */
     { SIZE_RATIO_11_9,
-     (4208 + 0 ),(3120 + 0) ,   /* [sensor ] */
-      4208      , 3120      ,   /* [bns    ] */
-      3808      , 3120      ,   /* [bcrop  ] */
+     (4128 + 16),(3096 + 10),   /* [sensor ] */
+      4144      , 3106      ,   /* [bns    ] */
+      3784      , 3096      ,   /* [bcrop  ] */
       1312      , 1080      ,   /* [bds    ] *//* w=1320, Reduced for 16 pixel align */
       1312      , 1080      ,   /* [target ] */
     }
