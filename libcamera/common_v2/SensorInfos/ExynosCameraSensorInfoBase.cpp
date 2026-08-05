@@ -3555,10 +3555,14 @@ ExynosSensorS5K3M3Base::ExynosSensorS5K3M3Base() : ExynosSensorInfoBase()
     maxPictureH = 3096;
     maxVideoW = 3840;
     maxVideoH = 2160;
-    maxSensorW = 4208;
-    maxSensorH = 3120;
-    sensorMarginW = 0;
-    sensorMarginH = 0;
+    /* kernel modules/fimc-is-device-module-3m3.c: active = (4128+16) x (3096+10),
+     * full mode in cis/fimc-is-cis-3m3.c is 4144x3106, so maxSensor must not
+     * exceed that (4208x3120 was IMX258's array size and is rejected by the
+     * S5K3M3 driver's s_mbus_fmt chain -> FLITE s_fmt EINVAL on front cam) */
+    maxSensorW = 4144;
+    maxSensorH = 3106;
+    sensorMarginW = 16;
+    sensorMarginH = 10;
 
     maxThumbnailW = 512;
     maxThumbnailH = 384;
