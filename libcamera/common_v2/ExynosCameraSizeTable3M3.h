@@ -928,14 +928,18 @@ static int S5K3M3_HIDDEN_VIDEO_LIST[][SIZE_OF_RESOLUTION] =
 
 static int S5K3M3_FPS_RANGE_LIST[][2] =
 {
-    //{   5000,   5000},
-    //{   7000,   7000},
+    /* mirror IMX258_FPS_RANGE_LIST: the kernel S5K3M3 modes are 30fps-capable
+     * (4144x3106/4144x2332@30, 2072x1552@30/15/7 - no 60fps mode exists, so no
+     * 60000 entries here). Advertizing only {15000,15000} makes CameraSource
+     * reject the recorder's 30fps request -> MediaRecorder.start() fails (-19)
+     * on front-cam video recording. */
+    {   7000,   7000},
     {  15000,  15000},
-    //{  24000,  24000},
-    //{   4000,  30000},
-    //{  10000,  30000},
-    //{  15000,  30000},
-    //{  30000,  30000},
+    {  24000,  24000},
+    {   8000,  30000},
+    {  10000,  30000},
+    {  15000,  30000},
+    {  30000,  30000},
 };
 
 static int S5K3M3_HIDDEN_FPS_RANGE_LIST[][2] =
