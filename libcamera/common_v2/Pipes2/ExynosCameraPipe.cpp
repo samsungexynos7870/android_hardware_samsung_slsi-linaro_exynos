@@ -1540,19 +1540,6 @@ status_t ExynosCameraPipe::m_setNodeInfo(ExynosCameraNode *node, camera_pipe_inf
         }
         node->setBufferType(pipeInfos->bufInfo.count, (enum v4l2_buf_type)pipeInfos->bufInfo.type, (enum v4l2_memory)pipeInfos->bufInfo.memory);
 
-        node->getBufferType(&currentBufferCount, &currentBufType, &currentMemType);
-
-        /* fimc-is2 v3.x drivers (e.g. on Exynos7870) require VIDIOC_REQBUFS
-           before VIDIOC_S_FMT: the driver's s_fmt asserts S_BUFS is already
-           set in the video ctx state (S_INPUT | S_BUFS [leader]).
-           Request the buffers up-front, then set the format. */
-        if (currentBufferCount > 0) {
-            if (node->reqBuffers() != NO_ERROR) {
-                CLOGE("ERR(%s[%d]): node->reqBuffers() fail", __FUNCTION__, __LINE__);
-                return INVALID_OPERATION;
-            }
-        }
-
         if (flagValidSetFormatInfo == true) {
             {
                 if (node->setFormat(pipeInfos->bytesPerPlane) != NO_ERROR) {
@@ -1562,14 +1549,14 @@ status_t ExynosCameraPipe::m_setNodeInfo(ExynosCameraNode *node, camera_pipe_inf
             }
         }
 
+        node->getBufferType(&currentBufferCount, &currentBufType, &currentMemType);
+
     } else {
         CLOGD("DEBUG(%s[%d]): SKIP set pipeInfos setFormat(%d, %d) and reqBuffers(%d).",
             __FUNCTION__, __LINE__, pipeInfos->rectInfo.fullW, pipeInfos->rectInfo.fullH, pipeInfos->bufInfo.count);
     }
 
-    if (flagSetRequest == true) {
-        /* buffers already requested above, before setFormat() (fimc-is2 v3.x) */
-    } else if (currentBufferCount <= 0) {
+    if (currentBufferCount <= 0) {
         CLOGW("WARN(%s[%d]): invalid currentBufferCount(%d). So, skip reqBuffers()",
                 __FUNCTION__, __LINE__, currentBufferCount);
     } else {

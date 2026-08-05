@@ -1164,6 +1164,16 @@ int ExynosCameraNode::m_setFmt(void)
         /* nop */
     } else {
         ret = exynos_v4l2_s_fmt(m_fd, &m_v4l2Format);
+        if (ret < 0 && m_sensorId > 0) {
+            /* fimc-is2 v3.x drivers (e.g. Exynos7870) require VIDIOC_S_INPUT
+               to precede VIDIOC_S_FMT; if the pipe-level input select was
+               skipped (e.g. after a pipe rebuild/retry), re-issue it once and
+               retry the s_fmt. */
+            CLOGW("WRN(%s):exynos_v4l2_s_fmt(fd:%d) fail (%d); re-issuing s_input(%d) and retrying",
+                __FUNCTION__, m_fd, ret, m_sensorId);
+            (void)exynos_v4l2_s_input(m_fd, m_sensorId);
+            ret = exynos_v4l2_s_fmt(m_fd, &m_v4l2Format);
+        }
         if (ret < 0) {
             CLOGE("ERR(%s):exynos_v4l2_s_fmt(fd:%d) fail (%d)",
                 __FUNCTION__, m_fd, ret);
