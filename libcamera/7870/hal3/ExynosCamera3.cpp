@@ -1793,17 +1793,31 @@ status_t ExynosCamera3::flush()
         }
     }
 
-    /* Wait for finishing post-processing thread */
-    m_previewStreamBayerThread->requestExitAndWait();
-    m_previewStream3AAThread->requestExitAndWait();
-    m_previewStreamISPThread->requestExitAndWait();
-    m_previewStreamMCSCThread->requestExitAndWait();
+    /* Wait for finishing post-processing thread.
+     * When camera open failed halfway (e.g. factory create/initPipes failed),
+     * this teardown tail is reached with some members never created; crash
+     * dumps from camera_v3_5..v3_9 show a deterministic NULL deref at
+     * flush()+1048 right after "m_frameFactory[0] stopPipes". Guard every
+     * member like upstream already does for m_duplicateBufferThread and
+     * m_pipeFrameDoneQ[]. */
+    if (m_previewStreamBayerThread != NULL)
+        m_previewStreamBayerThread->requestExitAndWait();
+    if (m_previewStream3AAThread != NULL)
+        m_previewStream3AAThread->requestExitAndWait();
+    if (m_previewStreamISPThread != NULL)
+        m_previewStreamISPThread->requestExitAndWait();
+    if (m_previewStreamMCSCThread != NULL)
+        m_previewStreamMCSCThread->requestExitAndWait();
 #ifdef USE_VRA_GROUP
-    m_previewStreamVRAThread->requestExitAndWait();
+    if (m_previewStreamVRAThread != NULL)
+        m_previewStreamVRAThread->requestExitAndWait();
 #endif
-    m_internalFrameThread->requestExitAndWait();
-    m_captureThread->requestExitAndWait();
-    m_captureStreamThread->requestExitAndWait();
+    if (m_internalFrameThread != NULL)
+        m_internalFrameThread->requestExitAndWait();
+    if (m_captureThread != NULL)
+        m_captureThread->requestExitAndWait();
+    if (m_captureStreamThread != NULL)
+        m_captureStreamThread->requestExitAndWait();
     if (m_duplicateBufferThread != NULL && m_duplicateBufferThread->isRunning()) {
         m_duplicateBufferThread->requestExitAndWait();
     }
@@ -1814,13 +1828,19 @@ status_t ExynosCamera3::flush()
             m_pipeFrameDoneQ[i]->release();
         }
     }
-    m_internalFrameDoneQ->release();
-    m_captureQ->release();
-    m_reprocessingDoneQ->release();
-    m_yuvCaptureDoneQ->release();
-    m_duplicateBufferDoneQ->release();
+    if (m_internalFrameDoneQ != NULL)
+        m_internalFrameDoneQ->release();
+    if (m_captureQ != NULL)
+        m_captureQ->release();
+    if (m_reprocessingDoneQ != NULL)
+        m_reprocessingDoneQ->release();
+    if (m_yuvCaptureDoneQ != NULL)
+        m_yuvCaptureDoneQ->release();
+    if (m_duplicateBufferDoneQ != NULL)
+        m_duplicateBufferDoneQ->release();
 #ifdef YUV_DUMP
-    m_dumpFrameQ->release();
+    if (m_dumpFrameQ != NULL)
+        m_dumpFrameQ->release();
 #endif
 
     /* Result callback for the unhandled service requests */
@@ -9733,17 +9753,31 @@ status_t ExynosCamera3::m_restartStreamInternal()
     m_shotDoneQ->release();
     m_selectBayerQ->release();
 
-    /* Wait for finishing post-processing thread */
-    m_previewStreamBayerThread->requestExitAndWait();
-    m_previewStream3AAThread->requestExitAndWait();
-    m_previewStreamISPThread->requestExitAndWait();
-    m_previewStreamMCSCThread->requestExitAndWait();
+    /* Wait for finishing post-processing thread.
+     * When camera open failed halfway (e.g. factory create/initPipes failed),
+     * this teardown tail is reached with some members never created; crash
+     * dumps from camera_v3_5..v3_9 show a deterministic NULL deref at
+     * flush()+1048 right after "m_frameFactory[0] stopPipes". Guard every
+     * member like upstream already does for m_duplicateBufferThread and
+     * m_pipeFrameDoneQ[]. */
+    if (m_previewStreamBayerThread != NULL)
+        m_previewStreamBayerThread->requestExitAndWait();
+    if (m_previewStream3AAThread != NULL)
+        m_previewStream3AAThread->requestExitAndWait();
+    if (m_previewStreamISPThread != NULL)
+        m_previewStreamISPThread->requestExitAndWait();
+    if (m_previewStreamMCSCThread != NULL)
+        m_previewStreamMCSCThread->requestExitAndWait();
 #ifdef USE_VRA_GROUP
-    m_previewStreamVRAThread->requestExitAndWait();
+    if (m_previewStreamVRAThread != NULL)
+        m_previewStreamVRAThread->requestExitAndWait();
 #endif
-    m_internalFrameThread->requestExitAndWait();
-    m_captureThread->requestExitAndWait();
-    m_captureStreamThread->requestExitAndWait();
+    if (m_internalFrameThread != NULL)
+        m_internalFrameThread->requestExitAndWait();
+    if (m_captureThread != NULL)
+        m_captureThread->requestExitAndWait();
+    if (m_captureStreamThread != NULL)
+        m_captureStreamThread->requestExitAndWait();
     if (m_duplicateBufferThread != NULL && m_duplicateBufferThread->isRunning()) {
         m_duplicateBufferThread->requestExitAndWait();
     }
@@ -9754,13 +9788,19 @@ status_t ExynosCamera3::m_restartStreamInternal()
             m_pipeFrameDoneQ[i]->release();
         }
     }
-    m_internalFrameDoneQ->release();
-    m_captureQ->release();
-    m_reprocessingDoneQ->release();
-    m_yuvCaptureDoneQ->release();
-    m_duplicateBufferDoneQ->release();
+    if (m_internalFrameDoneQ != NULL)
+        m_internalFrameDoneQ->release();
+    if (m_captureQ != NULL)
+        m_captureQ->release();
+    if (m_reprocessingDoneQ != NULL)
+        m_reprocessingDoneQ->release();
+    if (m_yuvCaptureDoneQ != NULL)
+        m_yuvCaptureDoneQ->release();
+    if (m_duplicateBufferDoneQ != NULL)
+        m_duplicateBufferDoneQ->release();
 #ifdef YUV_DUMP
-    m_dumpFrameQ->release();
+    if (m_dumpFrameQ != NULL)
+        m_dumpFrameQ->release();
 #endif
 
     m_captureSelector->release();

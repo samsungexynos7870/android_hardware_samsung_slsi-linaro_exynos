@@ -2884,8 +2884,16 @@ status_t ExynosCameraMCPipe::m_setPipeInfo(camera_pipe_info_t *pipeInfos)
         if (m_node[i] != NULL &&
             0 < pipeInfos[i].rectInfo.fullW &&
             0 < pipeInfos[i].rectInfo.fullH) {
-            /* check about OUTPUT_NODE */
+            /* check about OUTPUT_NODE
+             * [kangchen 34xx-dialect] With FLITE/3AA OTF the sensor video node
+             * (video10x) is folded into slot OUTPUT_NODE of this pipe, and the
+             * kangchen kernel exposes ssx nodes as CAPTURE-only (no
+             * vidioc_s_fmt_vid_out_mplane handler on sensor video devices), so
+             * the runtime-proven v2-era setup gives this entry a CAPTURE buffer
+             * type. Accept it for the FLITE entry; every other pipe still has
+             * to use OUTPUT_MPLANE on slot 0. */
             if (i == OUTPUT_NODE
+                && m_deviceInfo->pipeId[i] != PIPE_FLITE
                 && pipeInfos[i].bufInfo.type != V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
                 CLOGE("pipeInfos[%d].bufInfo.type is not Valid(type:%d)",
                          i, pipeInfos[i].bufInfo.type);
