@@ -2826,6 +2826,18 @@ status_t ExynosCamera3::m_createInternalFrameFunc(void)
     ExynosCamera3FrameFactory *factory = m_frameFactory[FRAME_FACTORY_TYPE_CAPTURE_PREVIEW];
     ExynosCameraFrameSP_sptr_t newFrame = NULL;
 
+    /*
+     * The capture-preview factory is NULL when its create() failed
+     * (e.g. a video node could not be opened: the framework still calls
+     * flush() with pending requests, m_createFrameFunc() is inlined into
+     * it, and the unguarded factory->pushFrameToPipe() below SIGSEGVs the
+     * camera provider service). Bail out instead of dereferencing NULL.
+     */
+    if (factory == NULL) {
+        CLOGE("factory is NULL (frame factory create failed), skip internal frame");
+        return INVALID_OPERATION;
+    }
+
     /* Generate the internal frame */
     ret = m_generateInternalFrame(m_internalFrameCount++, factory, &m_processList, &m_processLock, newFrame);
     if (ret != NO_ERROR) {

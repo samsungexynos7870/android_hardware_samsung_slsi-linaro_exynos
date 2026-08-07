@@ -224,7 +224,7 @@ status_t ExynosCameraFrameFactoryPreview::create(__unused bool active)
 #endif
 
     /* EOS */
-    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1);
+    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1, getNodeType(PIPE_3AA)); /* 7870: route group EOS to the 3AA subdev node (sensor leader has no EOS case) */
     if (ret != NO_ERROR) {
         CLOGE("PIPE_%d V4L2_CID_IS_END_OF_STREAM fail, ret(%d)", PIPE_3AA, ret);
         /* TODO: exception handling */
@@ -451,14 +451,14 @@ status_t ExynosCameraFrameFactoryPreview::postcreate(void)
         && m_parameters->getPLBMode() == false
 #endif
     ) {
-        ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_CAMERA_TYPE, cameraType);
+        ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_CAMERA_TYPE, cameraType, getNodeType(PIPE_3AA)); /* 7870: route to the 3AA subdev node (no ssx case) */
         if (ret < 0) {
             CLOGE("PIPE_%d V4L2_CID_IS_CAMERA_TYPE fail, ret(%d)", PIPE_3AA, ret);
             /* TODO: exception handling */
             return INVALID_OPERATION;
         }
     } else {
-        ret = m_pipes[INDEX(PIPE_3AA)]->setControl(V4L2_CID_IS_CAMERA_TYPE, IS_COLD_BOOT);
+        ret = m_pipes[INDEX(PIPE_3AA)]->setControl(V4L2_CID_IS_CAMERA_TYPE, IS_COLD_BOOT, getNodeType(PIPE_3AA)); /* 7870: route to the 3AA subdev node (no ssx case) */
         if (ret < 0) {
             CLOGE("PIPE_%d V4L2_CID_IS_CAMERA_TYPE fail, ret(%d)", PIPE_3AA, ret);
             /* TODO: exception handling */
@@ -468,7 +468,7 @@ status_t ExynosCameraFrameFactoryPreview::postcreate(void)
 #endif
 
     /* EOS */
-    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1);
+    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1, getNodeType(PIPE_3AA)); /* 7870: route group EOS to the 3AA subdev node (sensor leader has no EOS case) */
     if (ret != NO_ERROR) {
         CLOGE("PIPE_%d V4L2_CID_IS_END_OF_STREAM fail, ret(%d)", PIPE_3AA, ret);
         /* TODO: exception handling */
@@ -1944,16 +1944,35 @@ status_t ExynosCameraFrameFactoryPreview::switchSensorMode(void)
     /* FLITE */
     nodeType = getNodeType(PIPE_FLITE);
 
+    /*
+     * [kangchen 34xx-dialect] The FLITE sensor video node (video 101) is
+     * CAPTURE-only: the kangchen fimc-is media layer registers no
+     * vidioc_s_fmt_vid_out_mplane handler for sensor nodes, so the
+     * upstream 32x64 OUTPUT dummy dies with EINVAL in VIDIOC_S_FMT
+     * during MCPipe::setupPipe (FLITE m_setFmt fail, camera_v3_8).
+     * The runtime-proven v2-era (34xx) stack configures this node as
+     * hwSensor-size bayer CAPTURE; mirror that here while keeping the
+     * v3-era per-frame leader bookkeeping untouched.
+     */
     /* set v4l2 buffer size */
-    tempRect.fullW = 32;
-    tempRect.fullH = 64;
+    tempRect.fullW = hwSensorW;
+    tempRect.fullH = hwSensorH;
     tempRect.colorFormat = bayerFormat;
+
+    /* set v4l2 video node bytes per plane */
+    pipeInfo[nodeType].bytesPerPlane[0] = getBayerLineSize(tempRect.fullW, bayerFormat);
 
     /* set v4l2 video node buffer count */
     pipeInfo[nodeType].bufInfo.count = config->current->bufInfo.num_3aa_buffers;
 
-    /* Set output node default info */
-    SET_OUTPUT_DEVICE_BASIC_INFO(PERFRAME_INFO_FLITE);
+    /* Set capture node info; v3-era per-frame group info stays as-is */
+    pipeInfo[nodeType].rectInfo = tempRect;
+    pipeInfo[nodeType].bufInfo.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+    pipeInfo[nodeType].bufInfo.memory = V4L2_CAMERA_MEMORY_TYPE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perframeSupportNodeNum = CAPTURE_NODE_MAX;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perframeInfoIndex = PERFRAME_INFO_FLITE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameNodeType = PERFRAME_NODE_TYPE_LEADER;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameVideoID = (m_deviceInfo[INDEX(pipeId)].nodeNum[nodeType] - FIMC_IS_VIDEO_BAS_NUM);
 
     /* BAYER */
     nodeType = getNodeType(PIPE_VC0);
@@ -2426,6 +2445,7 @@ status_t ExynosCameraFrameFactoryPreview::m_setDeviceInfo(bool isFastAE)
     /* Other nodes is not stream leader */
     flagStreamLeader = false;
 
+#ifdef SUPPORT_VC0_VIDEO_NODE
     /* VC0 for bayer */
     nodeType = getNodeType(PIPE_VC0);
     m_deviceInfo[pipeId].pipeId[nodeType]  = PIPE_VC0;
@@ -2433,6 +2453,13 @@ status_t ExynosCameraFrameFactoryPreview::m_setDeviceInfo(bool isFastAE)
     m_deviceInfo[pipeId].nodeNum[nodeType] = getFliteCaptureNodenum(m_cameraId, m_deviceInfo[pipeId].nodeNum[getNodeType(PIPE_FLITE)]);
     strncpy(m_deviceInfo[pipeId].nodeName[nodeType], "BAYER", EXYNOS_CAMERA_NAME_STR_SIZE - 1);
     m_sensorIds[pipeId][nodeType] = m_getSensorId(m_deviceInfo[pipeId].nodeNum[getNodeType(PIPE_FLITE)], false, flagStreamLeader, m_flagReprocessing);
+#else
+    /* exynos7870: no separate flite VC0 video node exists on this platform
+     * (fimc-is v3_11_0 registers only /dev/video 101/102/110-112/130-132/151/152;
+     * the SSVC0 capture nodes (video210..) are never instantiated), so skip the
+     * "BAYER" node entry entirely - otherwise MCPipe::m_preCreate() fails with
+     * open(/dev/video210) = ENOENT and the 3AA pipe create dies. */
+#endif
 
 #ifdef SUPPORT_DEPTH_MAP
     /* VC1 for depth */
@@ -2461,7 +2488,9 @@ status_t ExynosCameraFrameFactoryPreview::m_setDeviceInfo(bool isFastAE)
     if (isFastAE == true && flite3aaConnectionMode == HW_CONNECTION_MODE_M2M_BUFFER_HIDING)
         flite3aaConnectionMode = false;
 
-    m_sensorIds[pipeId][nodeType] = m_getSensorId(m_deviceInfo[previousPipeId].nodeNum[getNodeType(PIPE_VC0)], flite3aaConnectionMode, flagStreamLeader, m_flagReprocessing);
+    /* exynos7870: see note above - source is the flite node itself, and this
+     * first ischain entry is the stream leader. */
+    m_sensorIds[pipeId][nodeType] = m_getSensorId(m_deviceInfo[previousPipeId].nodeNum[getNodeType(PIPE_FLITE)], flite3aaConnectionMode, true /* stream leader */, m_flagReprocessing);
 
     /* 3AC */
     nodeType = getNodeType(PIPE_3AC);
@@ -2730,16 +2759,35 @@ status_t ExynosCameraFrameFactoryPreview::m_initPipes(uint32_t frameRate)
     /* FLITE */
     nodeType = getNodeType(PIPE_FLITE);
 
+    /*
+     * [kangchen 34xx-dialect] The FLITE sensor video node (video 101) is
+     * CAPTURE-only: the kangchen fimc-is media layer registers no
+     * vidioc_s_fmt_vid_out_mplane handler for sensor nodes, so the
+     * upstream 32x64 OUTPUT dummy dies with EINVAL in VIDIOC_S_FMT
+     * during MCPipe::setupPipe (FLITE m_setFmt fail, camera_v3_8).
+     * The runtime-proven v2-era (34xx) stack configures this node as
+     * hwSensor-size bayer CAPTURE; mirror that here while keeping the
+     * v3-era per-frame leader bookkeeping untouched.
+     */
     /* set v4l2 buffer size */
-    tempRect.fullW = 32;
-    tempRect.fullH = 64;
+    tempRect.fullW = hwSensorW;
+    tempRect.fullH = hwSensorH;
     tempRect.colorFormat = bayerFormat;
+
+    /* set v4l2 video node bytes per plane */
+    pipeInfo[nodeType].bytesPerPlane[0] = getBayerLineSize(tempRect.fullW, bayerFormat);
 
     /* set v4l2 video node buffer count */
     pipeInfo[nodeType].bufInfo.count = config->current->bufInfo.num_3aa_buffers;
 
-    /* Set output node default info */
-    SET_OUTPUT_DEVICE_BASIC_INFO(PERFRAME_INFO_FLITE);
+    /* Set capture node info; v3-era per-frame group info stays as-is */
+    pipeInfo[nodeType].rectInfo = tempRect;
+    pipeInfo[nodeType].bufInfo.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+    pipeInfo[nodeType].bufInfo.memory = V4L2_CAMERA_MEMORY_TYPE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perframeSupportNodeNum = CAPTURE_NODE_MAX;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perframeInfoIndex = PERFRAME_INFO_FLITE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameNodeType = PERFRAME_NODE_TYPE_LEADER;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameVideoID = (m_deviceInfo[INDEX(pipeId)].nodeNum[nodeType] - FIMC_IS_VIDEO_BAS_NUM);
 
     /* BAYER */
     nodeType = getNodeType(PIPE_VC0);

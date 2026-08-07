@@ -1086,20 +1086,16 @@ void ExynosCameraFrameFactory::m_initDeviceInfo(int pipeId)
 
 status_t ExynosCameraFrameFactory::m_setSensorSize(int pipeId, int sensorW, int sensorH)
 {
-    status_t ret = NO_ERROR;
-
-    /* set sensor size */
-    int sensorSizeBit = (sensorW << SENSOR_SIZE_WIDTH_SHIFT) | (sensorH << SENSOR_SIZE_HEIGHT_SHIFT);
-
-    ret = m_pipes[pipeId]->setControl(V4L2_CID_IS_S_SENSOR_SIZE, sensorSizeBit);
-    if (ret != NO_ERROR) {
-        CLOGE("setControl(V4L2_CID_IS_S_SENSOR_SIZE, (%d x %d)) fail", sensorW, sensorH);
-        return ret;
-    }
-
-    CLOGD("setControl(V4L2_CID_IS_S_SENSOR_SIZE, (%d x %d)) succeed", sensorW, sensorH);
-
-    return ret;
+    /* 7870 (fimc-is v3_11_0): V4L2_CID_IS_S_SENSOR_SIZE is not implemented by
+     * this driver generation -- no s_ctrl table (ssx / subdev / generic ischain)
+     * has a case for it, so the ioctl fails with -EINVAL on ANY node and aborts
+     * m_initPipes() (camera_v3_7). Sensor/output sizing is already driven per
+     * node through VIDIOC_S_FMT in m_initPipes() -- exactly what the
+     * runtime-proven common_v2/34xx flow does (it contains no such call).
+     * Keep as a no-op on this platform. */
+    CLOGV("skip setControl(V4L2_CID_IS_S_SENSOR_SIZE) pipe(%d) (%d x %d): unsupported by this driver",
+        pipeId, sensorW, sensorH);
+    return NO_ERROR;
 }
 
 status_t ExynosCameraFrameFactory::m_transitState(frame_factory_state_t state)

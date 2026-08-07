@@ -155,7 +155,7 @@ status_t ExynosCamera3FrameFactoryPreview::create()
     }
 
     /* EOS */
-    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1);
+    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1, getNodeType(PIPE_3AA)); /* 7870: route group EOS to the 3AA subdev node (sensor leader has no EOS case) */
     if (ret != NO_ERROR) {
         CLOGE("PIPE_%d V4L2_CID_IS_END_OF_STREAM fail, ret(%d)", PIPE_3AA, ret);
         /* TODO: exception handling */
@@ -163,7 +163,7 @@ status_t ExynosCamera3FrameFactoryPreview::create()
     }
 
     /* s_ctrl HAL version for selecting dvfs table */
-    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_HAL_VERSION, IS_HAL_VER_3_2);
+    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_HAL_VERSION, IS_HAL_VER_3_2, getNodeType(PIPE_3AA)); /* same node routing as EOS */
     if (ret < 0)
         CLOGW("WARN(%s): V4L2_CID_IS_HAL_VERSION is fail", __FUNCTION__);
 
@@ -323,7 +323,7 @@ status_t ExynosCamera3FrameFactoryPreview::postcreate(void)
     }
 
     /* EOS */
-    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1);
+    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_END_OF_STREAM, 1, getNodeType(PIPE_3AA)); /* 7870: route group EOS to the 3AA subdev node (sensor leader has no EOS case) */
     if (ret != NO_ERROR) {
         CLOGE("PIPE_%d V4L2_CID_IS_END_OF_STREAM fail, ret(%d)", PIPE_3AA, ret);
         /* TODO: exception handling */
@@ -331,7 +331,7 @@ status_t ExynosCamera3FrameFactoryPreview::postcreate(void)
     }
 
     /* s_ctrl HAL version for selecting dvfs table */
-    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_HAL_VERSION, IS_HAL_VER_3_2);
+    ret = m_pipes[PIPE_3AA]->setControl(V4L2_CID_IS_HAL_VERSION, IS_HAL_VER_3_2, getNodeType(PIPE_3AA)); /* same node routing as EOS */
     if (ret < 0)
         CLOGW("WARN(%s): V4L2_CID_IS_HAL_VERSION is fail", __FUNCTION__);
 
@@ -1774,16 +1774,35 @@ status_t ExynosCamera3FrameFactoryPreview::m_initPipes(uint32_t frameRate)
     /* FLITE */
     nodeType = getNodeType(PIPE_FLITE);
 
+    /*
+     * [kangchen 34xx-dialect] The FLITE sensor video node (video 101) is
+     * CAPTURE-only: the kangchen fimc-is media layer registers no
+     * vidioc_s_fmt_vid_out_mplane handler for sensor nodes, so the
+     * upstream 32x64 OUTPUT dummy dies with EINVAL in VIDIOC_S_FMT
+     * during MCPipe::setupPipe (FLITE m_setFmt fail, camera_v3_8).
+     * The runtime-proven v2-era (34xx) stack configures this node as
+     * hwSensor-size bayer CAPTURE; mirror that here while keeping the
+     * v3-era per-frame leader bookkeeping untouched.
+     */
     /* set v4l2 buffer size */
-    tempRect.fullW = 32;
-    tempRect.fullH = 64;
+    tempRect.fullW = hwSensorW;
+    tempRect.fullH = hwSensorH;
     tempRect.colorFormat = bayerFormat;
+
+    /* set v4l2 video node bytes per plane */
+    pipeInfo[nodeType].bytesPerPlane[0] = getBayerLineSize(tempRect.fullW, bayerFormat);
 
     /* set v4l2 video node buffer count */
     pipeInfo[nodeType].bufInfo.count = config->current->bufInfo.num_3aa_buffers;
 
-    /* Set output node default info */
-    SET_OUTPUT_DEVICE_BASIC_INFO(PERFRAME_INFO_FLITE);
+    /* Set capture node info; v3-era per-frame group info stays as-is */
+    pipeInfo[nodeType].rectInfo = tempRect;
+    pipeInfo[nodeType].bufInfo.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+    pipeInfo[nodeType].bufInfo.memory = V4L2_CAMERA_MEMORY_TYPE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perframeSupportNodeNum = CAPTURE_NODE_MAX;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perframeInfoIndex = PERFRAME_INFO_FLITE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameNodeType = PERFRAME_NODE_TYPE_LEADER;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameVideoID = (m_deviceInfo[INDEX(pipeId)].nodeNum[nodeType] - FIMC_IS_VIDEO_BAS_NUM);
 
     /* BAYER */
     nodeType = getNodeType(PIPE_VC0);
@@ -2322,16 +2341,35 @@ status_t ExynosCamera3FrameFactoryPreview::m_initPipesFastenAeStable(int32_t num
     /* FLITE */
     nodeType = getNodeType(PIPE_FLITE);
 
+    /*
+     * [kangchen 34xx-dialect] The FLITE sensor video node (video 101) is
+     * CAPTURE-only: the kangchen fimc-is media layer registers no
+     * vidioc_s_fmt_vid_out_mplane handler for sensor nodes, so the
+     * upstream 32x64 OUTPUT dummy dies with EINVAL in VIDIOC_S_FMT
+     * during MCPipe::setupPipe (FLITE m_setFmt fail, camera_v3_8).
+     * The runtime-proven v2-era (34xx) stack configures this node as
+     * hwSensor-size bayer CAPTURE; mirror that here while keeping the
+     * v3-era per-frame leader bookkeeping untouched.
+     */
     /* set v4l2 buffer size */
-    tempRect.fullW = 32;
-    tempRect.fullH = 64;
+    tempRect.fullW = hwSensorW;
+    tempRect.fullH = hwSensorH;
     tempRect.colorFormat = bayerFormat;
+
+    /* set v4l2 video node bytes per plane */
+    pipeInfo[nodeType].bytesPerPlane[0] = getBayerLineSize(tempRect.fullW, bayerFormat);
 
     /* set v4l2 video node buffer count */
     pipeInfo[nodeType].bufInfo.count = numFrames;
 
-    /* Set output node default info */
-    SET_OUTPUT_DEVICE_BASIC_INFO(PERFRAME_INFO_FLITE);
+    /* Set capture node info; v3-era per-frame group info stays as-is */
+    pipeInfo[nodeType].rectInfo = tempRect;
+    pipeInfo[nodeType].bufInfo.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+    pipeInfo[nodeType].bufInfo.memory = V4L2_CAMERA_MEMORY_TYPE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perframeSupportNodeNum = CAPTURE_NODE_MAX;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perframeInfoIndex = PERFRAME_INFO_FLITE;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameNodeType = PERFRAME_NODE_TYPE_LEADER;
+    pipeInfo[nodeType].perFrameNodeGroupInfo.perFrameLeaderInfo.perFrameVideoID = (m_deviceInfo[INDEX(pipeId)].nodeNum[nodeType] - FIMC_IS_VIDEO_BAS_NUM);
 
     /* BAYER */
     nodeType = getNodeType(PIPE_VC0);
