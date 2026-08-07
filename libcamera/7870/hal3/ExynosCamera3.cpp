@@ -1120,8 +1120,10 @@ status_t ExynosCamera3::configureStreams(camera3_stream_configuration *stream_li
         m_stopReprocessingFrameFactory(m_frameFactory[FRAME_FACTORY_TYPE_REPROCESSING]);
         m_stopFrameFactory(m_frameFactory[FRAME_FACTORY_TYPE_CAPTURE_PREVIEW]);
 
-        m_captureSelector->release();
-        m_captureZslSelector->release();
+        if (m_captureSelector != NULL)
+            m_captureSelector->release();
+        if (m_captureZslSelector != NULL)
+            m_captureZslSelector->release();
 
         /* clear frame lists */
         m_removeInternalFrames(&m_processList, &m_processLock);
@@ -1902,27 +1904,49 @@ status_t ExynosCamera3::flush()
         }
     } while(0);
 
-    m_captureSelector->release();
+    if (m_captureSelector != NULL)
+        m_captureSelector->release();
 
-    /* put all internal buffers */
-    for (int bufIndex = 0; bufIndex < m_fliteBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_fliteBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_3aaBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_3aaBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_ispBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_ispBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_mcscBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_mcscBufferMgr, bufIndex);
+    /* put all internal buffers.
+     * Some of these managers may never have been created when we get here
+     * after a failed open (e.g. m_ispReprocessingBufferMgr /
+     * m_yuvCaptureBufferMgr / m_thumbnailBufferMgr start out as constructor
+     * NULL), so guard them the same way upstream guards
+     * m_internalScpBufferMgr and m_depthMapBufferMgr just below. */
+    if (m_fliteBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_fliteBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_fliteBufferMgr, bufIndex);
+    }
+    if (m_3aaBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_3aaBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_3aaBufferMgr, bufIndex);
+    }
+    if (m_ispBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_ispBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_ispBufferMgr, bufIndex);
+    }
+    if (m_mcscBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_mcscBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_mcscBufferMgr, bufIndex);
+    }
 #ifdef USE_VRA_GROUP
-    for (int bufIndex = 0; bufIndex < m_vraBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_vraBufferMgr, bufIndex);
+    if (m_vraBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_vraBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_vraBufferMgr, bufIndex);
+    }
 #endif
-    for (int bufIndex = 0; bufIndex < m_ispReprocessingBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_ispReprocessingBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_yuvCaptureBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_yuvCaptureBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_thumbnailBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_thumbnailBufferMgr, bufIndex);
+    if (m_ispReprocessingBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_ispReprocessingBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_ispReprocessingBufferMgr, bufIndex);
+    }
+    if (m_yuvCaptureBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_yuvCaptureBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_yuvCaptureBufferMgr, bufIndex);
+    }
+    if (m_thumbnailBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_thumbnailBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_thumbnailBufferMgr, bufIndex);
+    }
 
     if (m_internalScpBufferMgr != NULL) {
         for (int bufIndex = 0; bufIndex < m_internalScpBufferMgr->getAllocatedBufferCount(); bufIndex++)
@@ -9803,27 +9827,49 @@ status_t ExynosCamera3::m_restartStreamInternal()
         m_dumpFrameQ->release();
 #endif
 
-    m_captureSelector->release();
+    if (m_captureSelector != NULL)
+        m_captureSelector->release();
 
-    /* put all internal buffers */
-    for (int bufIndex = 0; bufIndex < m_fliteBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_fliteBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_3aaBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_3aaBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_ispBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_ispBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_mcscBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_mcscBufferMgr, bufIndex);
+    /* put all internal buffers.
+     * Some of these managers may never have been created when we get here
+     * after a failed open (e.g. m_ispReprocessingBufferMgr /
+     * m_yuvCaptureBufferMgr / m_thumbnailBufferMgr start out as constructor
+     * NULL), so guard them the same way upstream guards
+     * m_internalScpBufferMgr and m_depthMapBufferMgr just below. */
+    if (m_fliteBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_fliteBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_fliteBufferMgr, bufIndex);
+    }
+    if (m_3aaBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_3aaBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_3aaBufferMgr, bufIndex);
+    }
+    if (m_ispBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_ispBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_ispBufferMgr, bufIndex);
+    }
+    if (m_mcscBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_mcscBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_mcscBufferMgr, bufIndex);
+    }
 #ifdef USE_VRA_GROUP
-    for (int bufIndex = 0; bufIndex < m_vraBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_vraBufferMgr, bufIndex);
+    if (m_vraBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_vraBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_vraBufferMgr, bufIndex);
+    }
 #endif
-    for (int bufIndex = 0; bufIndex < m_ispReprocessingBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_ispReprocessingBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_yuvCaptureBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_yuvCaptureBufferMgr, bufIndex);
-    for (int bufIndex = 0; bufIndex < m_thumbnailBufferMgr->getAllocatedBufferCount(); bufIndex++)
-        ret = m_putBuffers(m_thumbnailBufferMgr, bufIndex);
+    if (m_ispReprocessingBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_ispReprocessingBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_ispReprocessingBufferMgr, bufIndex);
+    }
+    if (m_yuvCaptureBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_yuvCaptureBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_yuvCaptureBufferMgr, bufIndex);
+    }
+    if (m_thumbnailBufferMgr != NULL) {
+        for (int bufIndex = 0; bufIndex < m_thumbnailBufferMgr->getAllocatedBufferCount(); bufIndex++)
+            ret = m_putBuffers(m_thumbnailBufferMgr, bufIndex);
+    }
 
     if (m_internalScpBufferMgr != NULL) {
         for (int bufIndex = 0; bufIndex < m_internalScpBufferMgr->getAllocatedBufferCount(); bufIndex++)
