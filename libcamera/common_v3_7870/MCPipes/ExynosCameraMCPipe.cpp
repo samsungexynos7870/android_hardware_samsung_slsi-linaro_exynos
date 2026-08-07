@@ -3860,19 +3860,33 @@ status_t ExynosCameraMCPipe::m_createSensorNode(int32_t *sensorIds)
     CLOGD("setInput(sensorIds : %d)", sensorIds[m_sensorNodeIndex]);
 #endif
 
+    /* exynos7870 (fimc-is v3_11_0): the sensor (SSx) node's VIDIOC_S_INPUT is
+     * decoded in fimc_is_ssx_video_s_input() with SENSOR_MODULE_MASK(0x0fffffff) /
+     * SENSOR_SCENARIO_MASK(0xf0000000), i.e. it expects the RAW sensor id, and
+     * fimc_is_sensor_s_input() then BUG_ON()s on input >= SENSOR_NAME_END.
+     * Forwarding the packed pipe-link descriptor ((module << 16) | flags) here
+     * therefore hits that BUG_ON -> kernel panic -> emergency reboot with a
+     * silently truncated logcat (no userspace error is ever printed).
+     * Feed this node the unique sensor id only; the packed value stays correct
+     * for the ischain link-table entries (3AA/ISP nodes handled by m_setInput). */
+    int32_t ssxNodeInput = sensorIds[m_sensorNodeIndex];
+#ifdef INPUT_MODULE_MASK
+    ssxNodeInput = (ssxNodeInput & INPUT_MODULE_MASK) >> INPUT_MODULE_SHIFT;
+#endif
+
 #ifdef SAMSUNG_QUICK_SWITCH
     if (m_deviceInfo->nodeNum[m_sensorNodeIndex] == FIMC_IS_VIDEO_SS4_NUM ||
         m_deviceInfo->nodeNum[m_sensorNodeIndex] == FIMC_IS_VIDEO_SS5_NUM) {
         if (m_parameters->getQuickSwitchCmd() == QUICK_SWITCH_CMD_IDLE_TO_STBY) {
-            ret = m_node[m_sensorNodeIndex]->setInput(sensorIds[m_sensorNodeIndex] | (SENSOR_SCENARIO_STANDBY << SCENARIO_SHIFT));
+            ret = m_node[m_sensorNodeIndex]->setInput(ssxNodeInput | (SENSOR_SCENARIO_STANDBY << SCENARIO_SHIFT));
         } else {
             /* Skip the setInput for this node in the switching case */
         }
     } else {
-        ret = m_node[m_sensorNodeIndex]->setInput(sensorIds[m_sensorNodeIndex]);
+        ret = m_node[m_sensorNodeIndex]->setInput(ssxNodeInput);
     }
 #else
-    ret = m_node[m_sensorNodeIndex]->setInput(sensorIds[m_sensorNodeIndex]);
+    ret = m_node[m_sensorNodeIndex]->setInput(ssxNodeInput);
 #endif
     if (ret < 0) {
         CLOGE("nodeNums[%d] : %p, setInput(sensorIds : %d fail, ret(%d)",

@@ -1505,12 +1505,20 @@ status_t ExynosCamera3FrameFactoryPreview::m_setDeviceInfo(void)
     /* Other nodes is not stream leader */
     flagStreamLeader = false;
 
+#ifdef SUPPORT_VC0_VIDEO_NODE
     /* VC0 for bayer */
     nodeType = getNodeType(PIPE_VC0);
     m_deviceInfo[pipeId].pipeId[nodeType]  = PIPE_VC0;
     m_deviceInfo[pipeId].nodeNum[nodeType] = getFliteCaptureNodenum(m_cameraId, m_deviceInfo[pipeId].nodeNum[getNodeType(PIPE_FLITE)]);
     strncpy(m_deviceInfo[pipeId].nodeName[nodeType], "BAYER", EXYNOS_CAMERA_NAME_STR_SIZE - 1);
     m_sensorIds[pipeId][nodeType] = m_getSensorId(m_deviceInfo[pipeId].nodeNum[getNodeType(PIPE_FLITE)], false, flagStreamLeader, m_flagReprocessing);
+#else
+    /* exynos7870: no separate flite VC0 video node exists on this platform
+     * (fimc-is v3_11_0 registers only /dev/video 101/102/110-112/130-132/151/152;
+     * the SSVC0 capture nodes (video210..) are never instantiated), so skip the
+     * "BAYER" node entry entirely - otherwise MCPipe::m_preCreate() fails with
+     * open(/dev/video210) = ENOENT and the 3AA pipe create dies. */
+#endif
 
 #ifdef SUPPORT_DEPTH_MAP
     /* VC1 for depth */
@@ -1534,7 +1542,10 @@ status_t ExynosCamera3FrameFactoryPreview::m_setDeviceInfo(void)
     m_deviceInfo[pipeId].pipeId[nodeType]  = PIPE_3AA;
     m_deviceInfo[pipeId].nodeNum[nodeType] = node3aa;
     strncpy(m_deviceInfo[pipeId].nodeName[nodeType], "3AA_OUTPUT", EXYNOS_CAMERA_NAME_STR_SIZE - 1);
-    m_sensorIds[pipeId][nodeType] = m_getSensorId(m_deviceInfo[previousPipeId].nodeNum[getNodeType(PIPE_VC0)], m_flagFlite3aaOTF, flagStreamLeader, m_flagReprocessing);
+    /* exynos7870: source of the 3AA entry is the flite (SS) node itself (no
+     * VC0 layer, same shape as the runtime-proven common_v2/34xx table), and
+     * this first ischain entry is the stream leader. */
+    m_sensorIds[pipeId][nodeType] = m_getSensorId(m_deviceInfo[previousPipeId].nodeNum[getNodeType(PIPE_FLITE)], m_flagFlite3aaOTF, true /* stream leader */, m_flagReprocessing);
 
     /* 3AC */
     nodeType = getNodeType(PIPE_3AC);
