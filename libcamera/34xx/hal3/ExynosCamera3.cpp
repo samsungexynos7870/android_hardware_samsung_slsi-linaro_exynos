@@ -4022,7 +4022,18 @@ status_t ExynosCamera3::m_getBufferManager(uint32_t pipeId, ExynosCameraBufferMa
         break;
     }
 
-    *bufMgr = *bufMgrList[direction];
+    /* A pipe id without a buffer manager attached (PIPE_SCC/PIPE_ISPC or an unknown
+     * pipeId that already logged "Unknown pipeId" + BAD_VALUE in the default case
+     * above) must not crash the provider by dereferencing a NULL slot here - hand
+     * the caller an error it already checks for. (camera_34xx_4: SIGSEGV @0x0 via
+     * getBufferManager(PIPE_SCC, DST) after m_handleJpegFrame.) */
+    if (bufMgrList[direction] != NULL) {
+        *bufMgr = *bufMgrList[direction];
+    } else {
+        *bufMgr = NULL;
+        if (ret == NO_ERROR)
+            ret = BAD_VALUE;
+    }
     return ret;
 }
 
@@ -6150,8 +6161,31 @@ status_t ExynosCamera3::m_handlePreviewFrame(ExynosCameraFrame *frame, int pipeI
                         if (m_parameters->isUseYuvReprocessing() == false
                             && m_parameters->isUsing3acForIspc() == true)
                             ret = m_sccCaptureSelector->manageFrameHoldListForDynamicBayer(frame);
-                        else
+                        else if (m_captureSelector != NULL)
                             ret = m_captureSelector->manageFrameHoldList(frame, entity->getPipeId(), false, factory->getNodeType(PIPE_3AC));
+                        else if (m_sccCaptureSelector != NULL) {
+                            /* On this board isReprocessing() == false at compile time
+                             * (MAIN_CAMERA_SINGLE/DUAL_REPROCESSING and the FRONT_ variants are all
+                             * (false)), so initilizeDevice() only ever creates m_sccCaptureSelector
+                             * and m_captureSelector is NULL forever. Upstream unconditionally called
+                             * the NULL selector here (SIGSEGV, fault addr 0x64) whenever a frame
+                             * carried a PIPE_3AC request thanks to USE_YUV_REPROCESSING(true).
+                             * Dropping the frame instead starves the still-capture path: its consumer
+                             * is m_captureThreadFunc -> m_sccCaptureSelector->selectDynamicFrames
+                             * (PIPE_3AA .. nodeType(PIPE_3AC)) - runtime-proven by a 6s select
+                             * timeout + "Picture frame delete" after every shutter press. Hold the
+                             * capture frame in the selector that actually exists and is consumed
+                             * on this board. */
+                            CLOGW2("m_captureSelector is NULL, hold 3AC capture frame in m_sccCaptureSelector (isUseYuvReprocessing(%d) isUsing3acForIspc(%d) frameCount(%d))",
+                                    m_parameters->isUseYuvReprocessing(),
+                                    m_parameters->isUsing3acForIspc(),
+                                    frame->getFrameCount());
+                            ret = m_sccCaptureSelector->manageFrameHoldListForDynamicBayer(frame);
+                        } else {
+                            CLOGE2("no capture selector available (frameCount(%d)), drop frame",
+                                    frame->getFrameCount());
+                            ret = INVALID_OPERATION;
+                        }
 
                         if (ret < 0) {
                             CLOGE2("manageFrameHoldList fail");
@@ -7963,8 +7997,31 @@ status_t ExynosCamera3::m_handleInternalFrame(ExynosCameraFrame *frame)
                         if (m_parameters->isUseYuvReprocessing() == false
                             && m_parameters->isUsing3acForIspc() == true)
                             ret = m_sccCaptureSelector->manageFrameHoldListForDynamicBayer(frame);
-                        else
+                        else if (m_captureSelector != NULL)
                             ret = m_captureSelector->manageFrameHoldList(frame, entity->getPipeId(), false, factory->getNodeType(PIPE_3AC));
+                        else if (m_sccCaptureSelector != NULL) {
+                            /* On this board isReprocessing() == false at compile time
+                             * (MAIN_CAMERA_SINGLE/DUAL_REPROCESSING and the FRONT_ variants are all
+                             * (false)), so initilizeDevice() only ever creates m_sccCaptureSelector
+                             * and m_captureSelector is NULL forever. Upstream unconditionally called
+                             * the NULL selector here (SIGSEGV, fault addr 0x64) whenever a frame
+                             * carried a PIPE_3AC request thanks to USE_YUV_REPROCESSING(true).
+                             * Dropping the frame instead starves the still-capture path: its consumer
+                             * is m_captureThreadFunc -> m_sccCaptureSelector->selectDynamicFrames
+                             * (PIPE_3AA .. nodeType(PIPE_3AC)) - runtime-proven by a 6s select
+                             * timeout + "Picture frame delete" after every shutter press. Hold the
+                             * capture frame in the selector that actually exists and is consumed
+                             * on this board. */
+                            CLOGW2("m_captureSelector is NULL, hold 3AC capture frame in m_sccCaptureSelector (isUseYuvReprocessing(%d) isUsing3acForIspc(%d) frameCount(%d))",
+                                    m_parameters->isUseYuvReprocessing(),
+                                    m_parameters->isUsing3acForIspc(),
+                                    frame->getFrameCount());
+                            ret = m_sccCaptureSelector->manageFrameHoldListForDynamicBayer(frame);
+                        } else {
+                            CLOGE2("no capture selector available (frameCount(%d)), drop frame",
+                                    frame->getFrameCount());
+                            ret = INVALID_OPERATION;
+                        }
 
                         if (ret < 0) {
                             CLOGE2("manageFrameHoldList fail");
