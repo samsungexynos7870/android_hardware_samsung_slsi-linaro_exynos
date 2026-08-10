@@ -6321,7 +6321,12 @@ ExynosCamera3SensorS5K3M3Base::ExynosCamera3SensorS5K3M3Base(int cameraId) : Exy
     blackLevelPattern[GB] = 0;
     blackLevelPattern[B] = 0;
     maxAnalogSensitivity = 640;
-    orientation = BACK_ROTATION;
+    /* S5K3M3 also ships as a front-facing sensor (e.g. front cam on
+     * exynos7870 devices).  Hardcoding BACK_ROTATION makes HAL3 report
+     * the wrong android.sensor.orientation (90 instead of 270) so front
+     * camera photos end up rotated 180 degrees while preview/video look
+     * fine.  Pick the orientation per camera instead. */
+    orientation = (cameraId == CAMERA_ID_FRONT) ? FRONT_ROTATION : BACK_ROTATION;
     profileHueSatMapDimensions[HUE] = 1;
     profileHueSatMapDimensions[SATURATION] = 2;
     profileHueSatMapDimensions[VALUE] = 1;
