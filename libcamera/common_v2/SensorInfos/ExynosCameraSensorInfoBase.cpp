@@ -4878,7 +4878,7 @@ ExynosSensorIMX219Base::ExynosSensorIMX219Base() : ExynosSensorInfoBase()
 
     fNumberNum = 19;
     fNumberDen = 10;
-    focalLengthNum = 160;
+    focalLengthNum = 291;
     focalLengthDen = 100;
     focusDistanceNum = 0;
     focusDistanceDen = 0;
@@ -4888,10 +4888,10 @@ ExynosSensorIMX219Base::ExynosSensorIMX219Base() : ExynosSensorInfoBase()
     horizontalViewAngle[SIZE_RATIO_16_9] = 56.0f;
     horizontalViewAngle[SIZE_RATIO_4_3] = 44.3f;
     horizontalViewAngle[SIZE_RATIO_1_1] = 34.0f;
-    horizontalViewAngle[SIZE_RATIO_3_2] = 48.1f;
-    horizontalViewAngle[SIZE_RATIO_5_4] = 44.3f;
-    horizontalViewAngle[SIZE_RATIO_5_3] = 52.8f;
-    horizontalViewAngle[SIZE_RATIO_11_9] = 44.3f;
+    horizontalViewAngle[SIZE_RATIO_3_2] = 55.2f;
+    horizontalViewAngle[SIZE_RATIO_5_4] = 48.8f;
+    horizontalViewAngle[SIZE_RATIO_5_3] = 58.4f;
+    horizontalViewAngle[SIZE_RATIO_11_9] = 48.8f;
     verticalViewAngle = 39.4f;
     focalLengthIn35mmLength = 31;
 
@@ -4902,10 +4902,10 @@ ExynosSensorIMX219Base::ExynosSensorIMX219Base() : ExynosSensorInfoBase()
     maxExposureCompensation = 4;
     exposureCompensationStep = 0.5f;
     maxNumDetectedFaces = 16;
-    maxNumFocusAreas = 1;
+    maxNumFocusAreas = 0;
     maxNumMeteringAreas = 0;
-    maxZoomLevel = MAX_ZOOM_LEVEL_FRONT;
-    maxZoomRatio = MAX_ZOOM_RATIO_FRONT;
+    maxZoomLevel = 31;
+    maxZoomRatio = 4000;
 
     zoomSupport = false;
     smoothZoomSupport = false;
@@ -4940,6 +4940,7 @@ ExynosSensorIMX219Base::ExynosSensorIMX219Base() : ExynosSensorInfoBase()
         | EFFECT_BEAUTY_FACE
         ;
 
+    /* The target A3Y17 front module has no flash or focus actuator. */
     flashModeList =
           FLASH_MODE_OFF
         /*| FLASH_MODE_AUTO*/
@@ -4949,10 +4950,10 @@ ExynosSensorIMX219Base::ExynosSensorIMX219Base() : ExynosSensorInfoBase()
         ;
 
     focusModeList =
-          FOCUS_MODE_AUTO
-        /*| FOCUS_MODE_INFINITY*/
-        | FOCUS_MODE_MACRO
-        /*| FOCUS_MODE_FIXED*/
+          FOCUS_MODE_INFINITY
+        | FOCUS_MODE_FIXED
+        /*| FOCUS_MODE_AUTO*/
+        /*| FOCUS_MODE_MACRO*/
         /*| FOCUS_MODE_EDOF*/
         /*| FOCUS_MODE_CONTINUOUS_VIDEO*/
         /*| FOCUS_MODE_CONTINUOUS_PICTURE*/
@@ -5002,16 +5003,18 @@ ExynosSensorIMX219Base::ExynosSensorIMX219Base() : ExynosSensorInfoBase()
     previewSizeLutMax           = sizeof(PREVIEW_SIZE_LUT_IMX219) / (sizeof(int) * SIZE_OF_LUT);
     pictureSizeLutMax           = sizeof(PICTURE_SIZE_LUT_IMX219) / (sizeof(int) * SIZE_OF_LUT);
     videoSizeLutMax             = sizeof(VIDEO_SIZE_LUT_IMX219) / (sizeof(int) * SIZE_OF_LUT);
-    videoSizeLutHighSpeed60Max  = 0;
-    videoSizeLutHighSpeed120Max = 0;
+    vtcallSizeLutMax            = sizeof(VTCALL_SIZE_LUT_IMX219) / (sizeof(int) * SIZE_OF_LUT);
+    videoSizeLutHighSpeed60Max  = sizeof(VIDEO_SIZE_LUT_60FPS_HIGH_SPEED_IMX219) / (sizeof(int) * SIZE_OF_LUT);
+    videoSizeLutHighSpeed120Max = sizeof(VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_IMX219) / (sizeof(int) * SIZE_OF_LUT);
 
     previewSizeLut              = PREVIEW_SIZE_LUT_IMX219;
     pictureSizeLut              = PICTURE_SIZE_LUT_IMX219;
     videoSizeLut                = VIDEO_SIZE_LUT_IMX219;
     videoSizeBnsLut             = NULL;
-    videoSizeLutHighSpeed60     = NULL;
-    videoSizeLutHighSpeed120    = NULL;
-    sizeTableSupport      = true;
+    vtcallSizeLut               = VTCALL_SIZE_LUT_IMX219;
+    videoSizeLutHighSpeed60     = VIDEO_SIZE_LUT_60FPS_HIGH_SPEED_IMX219;
+    videoSizeLutHighSpeed120    = VIDEO_SIZE_LUT_120FPS_HIGH_SPEED_IMX219;
+    sizeTableSupport            = true;
 
     /* Set the max of preview/picture/video lists */
     frontPreviewListMax      = sizeof(IMX219_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
