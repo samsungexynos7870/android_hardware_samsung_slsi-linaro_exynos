@@ -127,6 +127,14 @@ public:
     status_t setParentPipeId(enum pipeline parentPipeId);
     int      getParentPipeId(void);
 
+    status_t setRotation(int rotation);
+    int      getRotation(void);
+
+    status_t setFlipHorizontal(int flipHorizontal);
+    int      getFlipHorizontal(void);
+    status_t setFlipVertical(int flipVertical);
+    int      getFlipVertical(void);
+
 private:
     status_t m_setEntityType(entity_type_t type);
 
@@ -150,6 +158,10 @@ private:
 
     bool                     m_flagSpecificParent;
     int                      m_parentPipeId;
+
+    int                      m_rotation;
+    int                      m_flipHorizontal;
+    int                      m_flipVertical;
 };
 
 /* Frame state define */
@@ -437,6 +449,14 @@ public:
 #ifdef DEBUG_FRAME_MEMORY_LEAK
     long long int   getCheckLeakCount();
 #endif
+
+    status_t setRotation(uint32_t pipeId, int rotation);
+    int      getRotation(uint32_t pipeId);
+
+    status_t setFlipHorizontal(uint32_t pipeId, int flipHorizontal);
+    int      getFlipHorizontal(uint32_t pipeId);
+    status_t setFlipVertical(uint32_t pipeId, int flipVertical);
+    int      getFlipVertical(uint32_t pipeId);
 
 private:
     status_t        m_init();

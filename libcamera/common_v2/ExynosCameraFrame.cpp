@@ -1569,6 +1569,99 @@ status_t ExynosCameraFrame::m_deinit()
  * ExynosCameraFrameEntity class
  */
 
+status_t ExynosCameraFrame::setRotation(uint32_t pipeId, int rotation)
+{
+    status_t ret = NO_ERROR;
+    ExynosCameraFrameEntity *entity = searchEntityByPipeId(pipeId);
+
+    if (entity == NULL) {
+        ALOGE("ERR(%s[%d]):Could not find entity, pipeID(%d)", __FUNCTION__, __LINE__, pipeId);
+        return BAD_VALUE;
+    }
+
+    ret = entity->setRotation(rotation);
+    if (ret != NO_ERROR) {
+        ALOGE("ERR(%s[%d]):pipeId(%d)->setRotation(%d) fail", __FUNCTION__, __LINE__, pipeId, rotation);
+        return ret;
+    }
+
+    return ret;
+}
+
+int ExynosCameraFrame::getRotation(uint32_t pipeId)
+{
+    ExynosCameraFrameEntity *entity = searchEntityByPipeId(pipeId);
+
+    if (entity == NULL) {
+        ALOGE("ERR(%s[%d]):Could not find entity, pipeID(%d)", __FUNCTION__, __LINE__, pipeId);
+        return BAD_VALUE;
+    }
+
+    return entity->getRotation();
+}
+
+status_t ExynosCameraFrame::setFlipHorizontal(uint32_t pipeId, int flipHorizontal)
+{
+    status_t ret = NO_ERROR;
+    ExynosCameraFrameEntity *entity = searchEntityByPipeId(pipeId);
+
+    if (entity == NULL) {
+        ALOGE("ERR(%s[%d]):Could not find entity, pipeID(%d)", __FUNCTION__, __LINE__, pipeId);
+        return BAD_VALUE;
+    }
+
+    ret = entity->setFlipHorizontal(flipHorizontal);
+    if (ret != NO_ERROR) {
+        ALOGE("ERR(%s[%d]):pipeId(%d)->setFlipHorizontal(%d) fail", __FUNCTION__, __LINE__, pipeId, flipHorizontal);
+        return ret;
+    }
+
+    return ret;
+}
+
+int ExynosCameraFrame::getFlipHorizontal(uint32_t pipeId)
+{
+    ExynosCameraFrameEntity *entity = searchEntityByPipeId(pipeId);
+
+    if (entity == NULL) {
+        ALOGE("ERR(%s[%d]):Could not find entity, pipeID(%d)", __FUNCTION__, __LINE__, pipeId);
+        return BAD_VALUE;
+    }
+
+    return entity->getFlipHorizontal();
+}
+
+status_t ExynosCameraFrame::setFlipVertical(uint32_t pipeId, int flipVertical)
+{
+    status_t ret = NO_ERROR;
+    ExynosCameraFrameEntity *entity = searchEntityByPipeId(pipeId);
+
+    if (entity == NULL) {
+        ALOGE("ERR(%s[%d]):Could not find entity, pipeID(%d)", __FUNCTION__, __LINE__, pipeId);
+        return BAD_VALUE;
+    }
+
+    ret = entity->setFlipVertical(flipVertical);
+    if (ret != NO_ERROR) {
+        ALOGE("ERR(%s[%d]):pipeId(%d)->setFlipVertical(%d) fail", __FUNCTION__, __LINE__, pipeId, flipVertical);
+        return ret;
+    }
+
+    return ret;
+}
+
+int ExynosCameraFrame::getFlipVertical(uint32_t pipeId)
+{
+    ExynosCameraFrameEntity *entity = searchEntityByPipeId(pipeId);
+
+    if (entity == NULL) {
+        ALOGE("ERR(%s[%d]):Could not find entity, pipeID(%d)", __FUNCTION__, __LINE__, pipeId);
+        return BAD_VALUE;
+    }
+
+    return entity->getFlipVertical();
+}
+
 ExynosCameraFrameEntity::ExynosCameraFrameEntity(
         uint32_t pipeId,
         entity_type_t type,
@@ -1587,6 +1680,10 @@ ExynosCameraFrameEntity::ExynosCameraFrameEntity(
 
     m_flagSpecificParent = false;
     m_parentPipeId = -1;
+
+    m_rotation = 0;
+    m_flipHorizontal = 0;
+    m_flipVertical = 0;
 }
 
 status_t ExynosCameraFrameEntity::m_setEntityType(entity_type_t type)
@@ -1622,6 +1719,42 @@ status_t ExynosCameraFrameEntity::m_setEntityType(entity_type_t type)
 uint32_t ExynosCameraFrameEntity::getPipeId(void)
 {
     return m_pipeId;
+}
+
+status_t ExynosCameraFrameEntity::setRotation(int rotation)
+{
+    m_rotation = rotation;
+
+    return NO_ERROR;
+}
+
+int ExynosCameraFrameEntity::getRotation(void)
+{
+    return m_rotation;
+}
+
+status_t ExynosCameraFrameEntity::setFlipHorizontal(int flipHorizontal)
+{
+    m_flipHorizontal = flipHorizontal;
+
+    return NO_ERROR;
+}
+
+int ExynosCameraFrameEntity::getFlipHorizontal(void)
+{
+    return m_flipHorizontal;
+}
+
+status_t ExynosCameraFrameEntity::setFlipVertical(int flipVertical)
+{
+    m_flipVertical = flipVertical;
+
+    return NO_ERROR;
+}
+
+int ExynosCameraFrameEntity::getFlipVertical(void)
+{
+    return m_flipVertical;
 }
 
 status_t ExynosCameraFrameEntity::setSrcBuf(ExynosCameraBuffer buf)

@@ -123,11 +123,6 @@ status_t ExynosCameraPipeGSC::m_run(void)
     int flipHorizontal = 0;
     int flipVertical = 0;
 
-    if (m_flagIgnoreFlip == false) {
-        flipHorizontal = m_parameters->getFlipHorizontal();
-        flipVertical = m_parameters->getFlipVertical();
-    }
-
     ret = m_inputFrameQ->waitAndPopProcessQ(&newFrame);
     if (ret < 0) {
         /* TODO: We need to make timeout duration depends on FPS */
@@ -149,6 +144,29 @@ status_t ExynosCameraPipeGSC::m_run(void)
     if (entity == NULL || entity->getSrcBufState() == ENTITY_BUFFER_STATE_ERROR) {
         CLOGE("ERR(%s[%d]):frame(%d) entityState(ENTITY_BUFFER_STATE_ERROR), skip msc", __FUNCTION__, __LINE__, newFrame->getFrameCount());
         goto func_exit;
+    }
+
+    rotation = newFrame->getRotation(getPipeId());
+    CLOGV("INFO(%s[%d]): getPipeId(%d), rotation(%d)", __FUNCTION__, __LINE__, getPipeId(), rotation);
+
+    /* The vendor HAL's camera application asks for a flip with
+     * CAMERA_CMD_SET_FLIP, that request ends up in the parameters. The HAL can
+     * take it over into the frame, so a flip is applied per frame and per pipe:
+     * an automatically flipped still picture does not turn around the preview
+     * or the video. The parameters stay the answer for every frame that does
+     * not carry a flip of its own.
+     */
+    flipHorizontal = newFrame->getFlipHorizontal(getPipeId());
+    flipVertical = newFrame->getFlipVertical(getPipeId());
+
+    if (m_flagIgnoreFlip == true) {
+        flipHorizontal = 0;
+        flipVertical = 0;
+    } else {
+        if (flipHorizontal == 0)
+            flipHorizontal = m_parameters->getFlipHorizontal();
+        if (flipVertical == 0)
+            flipVertical = m_parameters->getFlipVertical();
     }
 
     ret = newFrame->getSrcRect(getPipeId(), &srcRect);
