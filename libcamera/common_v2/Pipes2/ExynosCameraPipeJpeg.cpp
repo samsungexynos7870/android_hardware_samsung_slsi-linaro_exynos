@@ -19,6 +19,10 @@
 #define LOG_TAG "ExynosCameraPipeJpeg"
 #include <cutils/log.h>
 
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+
 #include "ExynosCameraPipeJpeg.h"
 
 /* For test */
@@ -98,6 +102,253 @@ status_t ExynosCameraPipeJpeg::startThread(void)
     CLOGI("INFO(%s[%d]):startThread is succeed (%d)", __FUNCTION__, __LINE__, getPipeId());
 
     return NO_ERROR;
+}
+
+/*
+ * The picture that gets saved is mirrored here, for the front camera, on its
+ * way into the encoder.  The preview of the front camera is shown mirrored,
+ * like a mirror, but the pictures that are saved are not: a selfie of a sign, a
+ * book cover or any other text is readable in the file and unreadable on the
+ * screen the user framed it with, so the result looks like a picture of the
+ * rear camera instead of like the selfie that was taken.
+ *
+ * The scaler of this platform cannot be asked for the flip: the still capture
+ * runs on the SC/MSC node (PICTURE_GSC_NODE_NUM is 4, which is CSC_HW_SC0), so
+ * libcsc hands the flip over to libexynosscaler's exynos_sc_set_rotation(),
+ * which is closed and drops it.  Everything between that scaler and the file
+ * is ours, so the picture is turned around by hand instead - right before it is
+ * handed to ExynosJpegEncoderForCamera, which also makes the thumbnail that is
+ * embedded in the file carry the same orientation, and covers every JPEG this
+ * HAL writes for the front camera: the still capture of the Camera2 API and of
+ * the legacy Camera1 API alike, and the reprocessing paths as well.
+ *
+ * Which way it has to be turned around follows from the orientation that ends
+ * up in the EXIF tag of the very same picture: that tag tells the viewer how it
+ * rotates the picture for the screen, and the user compares what he sees on the
+ * screen with what he sees in the preview, not with the bytes in the file.  A
+ * picture the viewer turns by 90 or 270 degrees has to be mirrored top to
+ * bottom to look mirrored on the screen, one that is turned by 0 or 180 degrees
+ * has to be mirrored left to right.  Doing it the other way around gives a
+ * selfie in portrait that is not mirrored but upside down, which is worse than
+ * what we started with.
+ */
+
+/*
+ * Turn the order of the lines of a plane around (top to bottom), which mirrors
+ * the picture for a viewer that turns it by 90 or 270 degrees.
+ */
+static void m_mirrorPlaneLines(unsigned char *base, int stride, int height)
+{
+    unsigned char *lineBuffer = NULL;
+    unsigned char *top = NULL;
+    unsigned char *bottom = NULL;
+    int y = 0;
+
+    if (base == NULL || stride <= 0 || height <= 1)
+        return;
+
+    lineBuffer = (unsigned char *)malloc(stride);
+    if (lineBuffer == NULL) {
+        ALOGE("ERR(%s[%d]): malloc(%d) fail", __FUNCTION__, __LINE__, stride);
+        return;
+    }
+
+    /* the line in the middle of an odd height stays where it is */
+    for (y = 0; y < (height >> 1); y++) {
+        top    = base + ((size_t)y * stride);
+        bottom = base + ((size_t)(height - 1 - y) * stride);
+
+        memcpy(lineBuffer, top, stride);
+        memcpy(top, bottom, stride);
+        memcpy(bottom, lineBuffer, stride);
+    }
+
+    free(lineBuffer);
+}
+
+/*
+ * Turn the groups of unitBytes of one line around, in place.  This is the plain
+ * mirror of a plane whose pixels are whole groups: it is what the luma and the
+ * interleaved chroma of NV12 and NV21 need.
+ */
+static void m_mirrorPlaneGroups(unsigned char *row, int stride, int unitBytes)
+{
+    unsigned char *left = NULL;
+    unsigned char *right = NULL;
+    unsigned char temp = 0;
+    int x = 0;
+    int i = 0;
+
+    if (row == NULL || stride <= 0 || unitBytes <= 0)
+        return;
+
+    for (x = 0; x + unitBytes <= stride - unitBytes - x; x += unitBytes) {
+        left  = row + x;
+        right = row + stride - unitBytes - x;
+
+        for (i = 0; i < unitBytes; i++) {
+            temp     = left[i];
+            left[i]  = right[i];
+            right[i] = temp;
+        }
+    }
+}
+
+/*
+ * Turn the pixels of one line of packed YUYV around (left to right), which
+ * mirrors the picture for a viewer that turns it by 0 or 180 degrees.
+ *
+ * The bytes of a line are Y U Y V for every two pixels: the two pixels of such
+ * a group share both chroma bytes, so they cannot be moved one by one - that
+ * would hand a pixel the chroma, or the luma, of its neighbour and tint the
+ * picture.  A group travels as a whole to the place of the mirrored group, and
+ * inside it the two luma bytes change places, because the pixel that was on the
+ * right is the one that is on the left after the mirror.  The group in the
+ * middle of an odd number of groups stays where it is and only swaps its two
+ * luma bytes with itself.
+ */
+static void m_mirrorYuyvLine(unsigned char *row, int width)
+{
+    unsigned char *left = NULL;
+    unsigned char *right = NULL;
+    unsigned char temp = 0;
+    int group = 0;
+    int groups = width / 2;
+
+    if (row == NULL || groups <= 0)
+        return;
+
+    for (group = 0; group < groups / 2; group++) {
+        left  = row + 4 * group;
+        right = row + 4 * (groups - 1 - group);
+
+        temp = left[0];  left[0]  = right[2]; right[2] = temp;   /* Y of the right pixel first */
+        temp = left[2];  left[2]  = right[0]; right[0] = temp;   /* and the left pixel after it */
+        temp = left[1];  left[1]  = right[1]; right[1] = temp;   /* U stays U */
+        temp = left[3];  left[3]  = right[3]; right[3] = temp;   /* V stays V */
+    }
+
+    /* one group in the middle: mirror its two pixels inside the group */
+    if (groups & 1) {
+        left = row + 4 * (groups / 2);
+        temp = left[0]; left[0] = left[2]; left[2] = temp;
+    }
+}
+
+/*
+ * Turn every line of a plane around inside itself (left to right), which
+ * mirrors the picture for a viewer that turns it by 0 or 180 degrees.
+ * unitBytes is the size of the smallest group the format defines: one byte for
+ * the luma of NV12 and NV21, two for their interleaved chroma, because a chroma
+ * sample covers a 2x2 block of luma and has to travel as one.
+ */
+static void m_mirrorPlanePixels(unsigned char *base, int stride, int height, int unitBytes)
+{
+    unsigned char *row = NULL;
+    int y = 0;
+
+    if (base == NULL || stride <= 0 || height <= 0 || unitBytes <= 0)
+        return;
+
+    for (y = 0; y < height; y++) {
+        row = base + ((size_t)y * stride);
+        m_mirrorPlaneGroups(row, stride, unitBytes);
+    }
+}
+
+/*
+ * Mirror the picture of the front camera in the buffer that goes into the JPEG
+ * encoder.  The two formats below are the packed ones the still capture of this
+ * platform produces; everything else is left alone and said so in the log,
+ * rather than scrambling a picture we do not understand.
+ */
+static void m_mirrorFrontPicture(ExynosCameraBuffer *buffer, ExynosRect *rect, int orientation)
+{
+    unsigned char *base = NULL;
+    unsigned char *chroma = NULL;
+    void *mappedBuffer = NULL;
+    size_t neededSize = 0;
+    int stride = 0;
+    int y = 0;
+    int flagVertical = false;
+
+    /* the EXIF orientation is a clockwise turn of 0, 90, 180 or 270 degrees */
+    orientation = ((orientation % 360) + 360) % 360;
+    flagVertical = (orientation == 90 || orientation == 270);
+
+    switch (rect->colorFormat) {
+    case V4L2_PIX_FMT_YUYV:
+        /* one packed plane: Y U Y V, two bytes a pixel, chroma shared by both */
+        stride = rect->w * 2;
+        neededSize = (size_t)stride * rect->h;
+        break;
+    case V4L2_PIX_FMT_NV12:
+    case V4L2_PIX_FMT_NV21:
+        /* the luma plane, followed by the interleaved chroma of half the height */
+        stride = rect->w;
+        neededSize = (size_t)stride * rect->h * 3 / 2;
+        break;
+    default:
+        ALOGW("WARN(%s[%d]): picture format(0x%x) is not mirrored",
+                __FUNCTION__, __LINE__, rect->colorFormat);
+        return;
+    }
+
+    if (rect->w <= 0 || rect->h <= 0 || (rect->w & 1) || (rect->h & 1)) {
+        ALOGW("WARN(%s[%d]): picture size(%dx%d) is not mirrored",
+                __FUNCTION__, __LINE__, rect->w, rect->h);
+        return;
+    }
+
+    /* rather no mirror than a write past the end of a buffer we misjudged */
+    if (buffer->size[0] < neededSize) {
+        ALOGW("WARN(%s[%d]): picture buffer(%u) shorter than %u, not mirrored",
+                __FUNCTION__, __LINE__, buffer->size[0], (unsigned int)neededSize);
+        return;
+    }
+
+    base = (unsigned char *)buffer->addr[0];
+    if (base == NULL) {
+        if (buffer->fd[0] < 0) {
+            ALOGE("ERR(%s[%d]): no buffer to mirror", __FUNCTION__, __LINE__);
+            return;
+        }
+
+        mappedBuffer = mmap(NULL, neededSize, PROT_READ | PROT_WRITE,
+                MAP_SHARED, buffer->fd[0], 0);
+        if (mappedBuffer == MAP_FAILED) {
+            ALOGE("ERR(%s[%d]): mmap(fd %d) fail", __FUNCTION__, __LINE__, buffer->fd[0]);
+            return;
+        }
+
+        base = (unsigned char *)mappedBuffer;
+    }
+
+    if (rect->colorFormat == V4L2_PIX_FMT_YUYV) {
+        if (flagVertical == true) {
+            m_mirrorPlaneLines(base, stride, rect->h);
+        } else {
+            for (y = 0; y < rect->h; y++)
+                m_mirrorYuyvLine(base + ((size_t)y * stride), rect->w);
+        }
+    } else {
+        chroma = base + ((size_t)stride * rect->h);
+
+        if (flagVertical == true) {
+            m_mirrorPlaneLines(base, stride, rect->h);
+            m_mirrorPlaneLines(chroma, stride, rect->h / 2);
+        } else {
+            m_mirrorPlanePixels(base, stride, rect->h, 1);
+            m_mirrorPlanePixels(chroma, stride, rect->h / 2, 2);
+        }
+    }
+
+    if (mappedBuffer != NULL)
+        munmap(mappedBuffer, neededSize);
+
+    ALOGD("DEBUG(%s[%d]): front picture %dx%d, orientation %d, mirrored %s",
+            __FUNCTION__, __LINE__, rect->w, rect->h, orientation,
+            (flagVertical == true) ? "top to bottom" : "left to right");
 }
 
 status_t ExynosCameraPipeJpeg::m_run(void)
@@ -253,6 +504,10 @@ status_t ExynosCameraPipeJpeg::m_run(void)
     newFrame->getUserDynamicMeta(m_shot_ext);
 
     m_parameters->setExifChangedAttribute(&exifInfo, &pictureRect, &thumbnailRect, &m_shot_ext->shot);
+
+    if (getCameraId() == CAMERA_ID_FRONT)
+        m_mirrorFrontPicture(&yuvBuf, &pictureRect,
+                (int)m_shot_ext->shot.ctl.jpeg.orientation);
 
     if (m_jpegEnc.setInBuf((int *)&(yuvBuf.fd), (int *)yuvBuf.size)) {
         CLOGE("ERR(%s):m_jpegEnc.setInBuf() fail", __FUNCTION__);
