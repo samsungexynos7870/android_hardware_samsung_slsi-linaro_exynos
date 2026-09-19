@@ -505,7 +505,15 @@ status_t ExynosCameraPipeJpeg::m_run(void)
 
     m_parameters->setExifChangedAttribute(&exifInfo, &pictureRect, &thumbnailRect, &m_shot_ext->shot);
 
-    if (getCameraId() == CAMERA_ID_FRONT)
+    /* The HAL puts the flip on the pipe that really produces the picture: the
+     * GSC/scaler when the still runs through it (see
+     * ExynosCamera3::m_handleIsChainDone()), this pipe when it does not. So
+     * there is exactly one flip on the way to the picture. The axis follows
+     * the orientation of the picture, the same value the EXIF header gets.
+     */
+    if (getCameraId() == CAMERA_ID_FRONT
+            && (newFrame->getFlipHorizontal(getPipeId()) != 0
+                || newFrame->getFlipVertical(getPipeId()) != 0))
         m_mirrorFrontPicture(&yuvBuf, &pictureRect,
                 (int)m_shot_ext->shot.ctl.jpeg.orientation);
 

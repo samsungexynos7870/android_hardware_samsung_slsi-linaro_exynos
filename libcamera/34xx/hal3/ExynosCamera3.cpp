@@ -4821,6 +4821,63 @@ status_t ExynosCamera3::m_handleIsChainDone(ExynosCameraFrame *frame)
     }
     ///////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////
+    /* The stock way of mirroring the selfie picture: the camera application
+     * asks for it with CAMERA_CMD_SET_FLIP, the request ends up in the
+     * parameters and the GSC pipe passes it on to the scaler. A HAL3 device has
+     * no send_command() to receive that request - Lineage's camera application
+     * talks through the legacy shim - so the decision is taken here, the same
+     * way the stock HAL treats the front camera.
+     *
+     * The flip goes into the frame, so exactly one pipe applies it: the
+     * GSC/scaler when the picture runs through it, the JPEG pipe when it does
+     * not. Only this still frame is marked, preview and video keep the
+     * orientation the application wants.
+     *
+     * The picture is shown turned by its EXIF orientation, so mirroring it the
+     * way the preview shows it means flipping along the other axis than it
+     * looks: 90 and 270 degrees turn the buffer around, they need the vertical
+     * flip, 0 and 180 degrees the horizontal one. The software mirror in the
+     * JPEG pipe follows the same rule.
+     */
+    if (getCameraId() == CAMERA_ID_FRONT) {
+        int flipPipeId = pipeId_jpeg;
+        int flipHorizontal = 1;
+        int flipVertical = 0;
+        int pictureOrientation = 0;
+
+        if (frame->getMetaData(temp_ext) == NO_ERROR)
+            pictureOrientation = (int)temp_ext->shot.ctl.jpeg.orientation;
+
+        if (pictureOrientation == 90 || pictureOrientation == 270) {
+            flipHorizontal = 0;
+            flipVertical = 1;
+        }
+
+        if (m_parameters->needGSCForCapture(getCameraId()) == true
+                && frame->searchEntityByPipeId(pipeId_gsc) != NULL) {
+            /* the picture runs through the scaler, let it do the flip */
+            flipPipeId = pipeId_gsc;
+        }
+
+        ret = frame->setFlipHorizontal(flipPipeId, flipHorizontal);
+        if (ret != NO_ERROR) {
+            CLOGE2("frame(%d) setFlipHorizontal(pipeId(%d)) fail, ret(%d)",
+                    frame->getFrameCount(), flipPipeId, ret);
+        }
+
+        ret = frame->setFlipVertical(flipPipeId, flipVertical);
+        if (ret != NO_ERROR) {
+            CLOGE2("frame(%d) setFlipVertical(pipeId(%d)) fail, ret(%d)",
+                    frame->getFrameCount(), flipPipeId, ret);
+        }
+
+        CLOGD2("frame(%d) orientation(%d), flip pipeId(%d), horizontal(%d), vertical(%d)",
+                frame->getFrameCount(), pictureOrientation,
+                flipPipeId, flipHorizontal, flipVertical);
+    }
+    ///////////////////////////////////////////////////////////
+
     if (m_parameters->needGSCForCapture(getCameraId()) == true) {
         if (m_parameters->isReprocessing() == true)
             ret = frame->getDstBuffer(pipeId_src, &srcBuffer, factory->getNodeType(PIPE_ISPC_REPROCESSING));
