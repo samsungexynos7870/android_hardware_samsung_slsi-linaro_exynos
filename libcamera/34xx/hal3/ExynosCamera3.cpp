@@ -2948,14 +2948,25 @@ status_t ExynosCamera3::m_sendNotify(uint32_t frameNumber, int type)
     timeStamp = request->getSensorTimestamp();
 
     /*
-     * A shutter callback with a timestamp of 0 is as good as no callback at
-     * all: the framework keeps the request in its in-flight map until it sees
-     * a shutter callback with a valid timestamp, so a zero one makes the drain
-     * of a following close() time out.  Fall back to the last frame time, like
-     * flush() does for the frames it completes.
+     * Send the callback of a completed frame, always.  The framework takes a
+     * request out of its in-flight map only after it saw this callback with a
+     * non zero timestamp, and it holds the result of the request back until
+     * then, so a frame without a callback keeps its output buffers and the
+     * pipeline runs dry - no preview, and the capture nodes get no buffers:
+     *
+     *   ExynosCameraMCPipe: [PIPE_3AA]-ERR(m_getBuffer):frameCount(365) :
+     *       captureNodeCount == 0 || checkRet(0) != NO_ERROR. so,
+     *       setFrameState(FRAME_STATE_SKIPPED)
+     *
+     * The timestamp is the sensor timestamp of the result of the same request:
+     * the framework ends the session (CAMERA3_MSG_ERROR_DEVICE, the camera
+     * application then reports a camera access failure) when the two differ,
+     * and m_pushResult() sees to it that they cannot.  A made up timestamp here
+     * would be the one thing that can break that, so there is none: if the
+     * request has no timestamp, the callback carries 0 and says so in the log.
      */
     if (timeStamp == 0L)
-        timeStamp = m_lastFrametime + 15000000;
+        CLOGW2("frame(%d) has no sensor timestamp, the callback carries 0", frameCount);
 
     CLOGV2("(%d)frame t(%lld), key : %d", frameCount, timeStamp, frameCount);
     switch (type) {
@@ -6031,8 +6042,16 @@ status_t ExynosCamera3::m_updateTimestamp(ExynosCameraFrame *frame, ExynosCamera
     uint64_t timeStamp = shot_ext->shot.dm.sensor.timeStamp;
     uint64_t frameDuration = shot_ext->shot.dm.sensor.frameDuration;
 
-    /* HACK: W/A for timeStamp reversion */
-    if (timeStamp < (uint64_t)m_lastFrametime) {
+    /*
+     * HACK: W/A for timeStamp reversion.  A timestamp of 0 is the same case -
+     * the driver of this device hands out frames without one now and then, and
+     * 0 is smaller than everything the HAL has seen so far, so the reversion
+     * rule below fixes those up as well.  Only at the very beginning, while
+     * m_lastFrametime is 0 itself, there would be nothing to count on; take the
+     * frame duration then, so that a session which never gets a timestamp from
+     * the driver still has a usable, moving one.
+     */
+    if (timeStamp == 0 || timeStamp < (uint64_t)m_lastFrametime) {
         CLOGW2("Timestamp is %lld!, m_lastFrametime(%lld)",
                 timeStamp, m_lastFrametime);
 
@@ -6049,6 +6068,16 @@ status_t ExynosCamera3::m_updateTimestamp(ExynosCameraFrame *frame, ExynosCamera
     }
 
     m_lastFrametime = timeStamp;
+
+    /*
+     * The fixed up timestamp has to become visible to the rest of the HAL, not
+     * only in udm.sensor.timeStampBoot: the result metadata of a request
+     * (ANDROID_SENSOR_TIMESTAMP) and the shutter callback of the same request
+     * both read dm.sensor.timeStamp, nothing reports the udm one.  A frame kept
+     * at 0 here came out at 0 in both places, and the framework never retired
+     * its request (see m_sendNotify()).
+     */
+    shot_ext->shot.dm.sensor.timeStamp = timeStamp;
     shot_ext->shot.udm.sensor.timeStampBoot = timeStamp;
 
     if (flagPushResult == true)
@@ -7456,9 +7485,34 @@ status_t ExynosCamera3::m_pushResult(uint32_t frameCount, struct camera2_shot_ex
     }
 
     currentPipelineDepth = dst_ext.shot.dm.request.pipelineDepth;
+    uint64_t timeStamp = dst_ext.shot.dm.sensor.timeStamp;
     memcpy(&dst_ext.shot.dm, &src_ext->shot.dm, sizeof(struct camera2_dm));
     memcpy(&dst_ext.shot.udm, &src_ext->shot.udm, sizeof(struct camera2_udm));
     dst_ext.shot.dm.request.pipelineDepth = currentPipelineDepth;
+
+    /*
+     * Every pipe that finishes pushes the metadata of the frame, the last one
+     * wins - and the buffers of the driver carry no timestamp for some frames,
+     * so a value that is already there must not be taken away by one of those:
+     * ANDROID_SENSOR_TIMESTAMP of the result and the timestamp of the shutter
+     * callback are read from this one field, and the framework ends the session
+     * when the two differ and never retires a request whose callback was 0.
+     * Same dummy frame time as flush() when there is nothing to go by yet.
+     */
+    if (dst_ext.shot.dm.sensor.timeStamp == 0) {
+        dst_ext.shot.dm.sensor.timeStamp = (timeStamp != 0) ? timeStamp
+                                                            : m_lastFrametime + 15000000;
+        CLOGV2("frame(%d) pushes no timestamp, the result keeps (%lld)",
+                frameCount, dst_ext.shot.dm.sensor.timeStamp);
+    } else if (timeStamp != 0
+            && dst_ext.shot.dm.sensor.timeStamp != timeStamp
+            && request->getCallbackDone(EXYNOS_REQUEST_RESULT::CALLBACK_NOTIFY_ONLY) == true) {
+        /* the callback of this request is out already: the framework compares
+         * its timestamp with the one of the result, so this one has to stay */
+        CLOGV2("frame(%d) keeps the sensor timestamp the callback carried (%lld)",
+                frameCount, timeStamp);
+        dst_ext.shot.dm.sensor.timeStamp = timeStamp;
+    }
 
     ret = request->setResultShot(&dst_ext);
     if (ret < 0) {
