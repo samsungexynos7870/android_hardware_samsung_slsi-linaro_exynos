@@ -2947,6 +2947,16 @@ status_t ExynosCamera3::m_sendNotify(uint32_t frameNumber, int type)
     frameCount = request->getKey();
     timeStamp = request->getSensorTimestamp();
 
+    /*
+     * A shutter callback with a timestamp of 0 is as good as no callback at
+     * all: the framework keeps the request in its in-flight map until it sees
+     * a shutter callback with a valid timestamp, so a zero one makes the drain
+     * of a following close() time out.  Fall back to the last frame time, like
+     * flush() does for the frames it completes.
+     */
+    if (timeStamp == 0L)
+        timeStamp = m_lastFrametime + 15000000;
+
     CLOGV2("(%d)frame t(%lld), key : %d", frameCount, timeStamp, frameCount);
     switch (type) {
     case CAMERA3_MSG_ERROR:
@@ -7402,11 +7412,16 @@ status_t ExynosCamera3::m_pushJpegResult(ExynosCameraFrame *frame, int size, Exy
 #if !defined(ENABLE_FULL_FRAME)
     /* try to notify if notify callback was not called in same framecount */
     if (request->getCallbackDone(EXYNOS_REQUEST_RESULT::CALLBACK_NOTIFY_ONLY) == false) {
-        /* can't send notify cause of one request including render, video */
-        if (m_needNotify(request) == true) {
-            CLOGV2("notify(%d)", frame->getFrameCount());
-            m_sendNotify(frame->getFrameCount(), CAMERA3_MSG_SHUTTER);
-        }
+        /*
+         * Do not gate this on m_needNotify(): it is only true for requests
+         * which carry nothing but a still capture, while a normal still
+         * capture owns the preview stream as well.  Those got no shutter
+         * callback at all, so the framework kept them in its in-flight map
+         * forever and camera close() ended in an ANR while draining.
+         * getCallbackDone() alone already makes sure we notify only once.
+         */
+        CLOGV2("notify(%d)", frame->getFrameCount());
+        m_sendNotify(frame->getFrameCount(), CAMERA3_MSG_SHUTTER);
     }
 #endif
 
