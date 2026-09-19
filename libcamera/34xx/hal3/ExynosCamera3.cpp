@@ -6638,6 +6638,7 @@ status_t ExynosCamera3::m_doDestCSC(bool enableCSC, ExynosCameraFrame *frame, in
     uint32_t *output = NULL;
 
     ExynosCameraBufferManager *bufferMgr = NULL;
+    struct camera2_shot_ext shot_ext;
 
 
     if (enableCSC == false) {
@@ -6700,6 +6701,63 @@ status_t ExynosCamera3::m_doDestCSC(bool enableCSC, ExynosCameraFrame *frame, in
                            0, 1);
 
     newFrame = factory->createNewFrameOnlyOnePipe(pipeExtScalerId, frame->getFrameCount());
+
+    /*
+     * The picture of a YUV camera application is mirrored here.
+     *
+     * The stock HAL took the picture the user saves from the JPEG stream of the
+     * HAL (see m_handleIsChainDone()), an application like Google Camera takes
+     * it from the callback stream instead: it merges its pictures from that
+     * stream and writes the JPEG itself, the JPEG stream of the HAL is never
+     * used. The callback stream is a duplicate of the preview that ends up in
+     * the scaler, so the mirror has to be asked for here to cover it.
+     *
+     * The flip goes into the frame of that duplicate only, and it is applied by
+     * the scaler of that pipe: the preview and the video are other duplicates
+     * and keep the orientation the application wants, and other cameras are not
+     * touched at all.
+     *
+     * The axis: the application turns the picture by its own orientation for
+     * the screen, so a picture that is turned by 90 or 270 degrees has to be
+     * flipped top to bottom to look mirrored on the screen, one that is turned
+     * by 0 or 180 degrees left to right (the software mirror in the JPEG pipe
+     * of the HAL follows the same rule). The orientation of the picture is the
+     * one the application puts into its capture request; an application that
+     * only asks for YUV buffers does not always set it, and a phone is held
+     * upright for a selfie far more often than sideways, so the unknown case is
+     * taken as the upright one. The log line below tells what was used.
+     */
+    if (getCameraId() == CAMERA_ID_FRONT && halStreamId == HAL_STREAM_ID_CALLBACK) {
+        int pictureOrientation = 0;
+        int flipHorizontal = 0;
+        int flipVertical = 1;
+
+        memset(&shot_ext, 0x00, sizeof(shot_ext));
+        if (frame->getMetaData(&shot_ext) == NO_ERROR)
+            pictureOrientation = (int)shot_ext.shot.ctl.jpeg.orientation;
+
+        if (pictureOrientation == 180) {
+            /* landscape, standing on its head: the other axis than the rest */
+            flipHorizontal = 1;
+            flipVertical = 0;
+        }
+
+        ret = newFrame->setFlipHorizontal(pipeExtScalerId, flipHorizontal);
+        if (ret != NO_ERROR) {
+            CLOGE2("frame(%d) setFlipHorizontal(pipeId(%d)) fail, ret(%d)",
+                    frame->getFrameCount(), pipeExtScalerId, ret);
+        }
+
+        ret = newFrame->setFlipVertical(pipeExtScalerId, flipVertical);
+        if (ret != NO_ERROR) {
+            CLOGE2("frame(%d) setFlipVertical(pipeId(%d)) fail, ret(%d)",
+                    frame->getFrameCount(), pipeExtScalerId, ret);
+        }
+
+        CLOGD2("callback frame(%d) orientation(%d), flip pipeId(%d), horizontal(%d), vertical(%d)",
+                frame->getFrameCount(), pictureOrientation, pipeExtScalerId,
+                flipHorizontal, flipVertical);
+    }
 
     ret = newFrame->setSrcRect(pipeExtScalerId, srcRect);
     if (ret != NO_ERROR) {
