@@ -21,7 +21,7 @@
 #include <log/log.h>
 #include <utils/RefBase.h>
 #include <hardware/camera3.h>
-#include <CameraMetadata.h>
+#include <camera/CameraMetadata.h>
 #include <map>
 #include <list>
 #include <android/sync.h>

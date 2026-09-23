@@ -20,7 +20,7 @@
 
 #include <videodev2.h>
 #include <videodev2_exynos_camera.h>
-#include <CameraMetadata.h>
+#include <camera/CameraMetadata.h>
 #include "ExynosCameraCommonInclude.h"
 #include "ExynosCameraSizeTable.h"
 #include "ExynosCameraAvailabilityTable.h"

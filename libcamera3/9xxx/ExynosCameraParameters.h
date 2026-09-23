@@ -22,7 +22,7 @@
 #include <utils/RefBase.h>
 #include <utils/String8.h>
 #include <cutils/properties.h>
-#include <CameraParameters.h>
+#include <camera/CameraParameters.h>
 
 #include <videodev2.h>
 #include <videodev2_exynos_media.h>

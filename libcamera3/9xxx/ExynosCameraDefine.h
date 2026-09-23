@@ -25,8 +25,8 @@
 #include <hardware/camera.h>
 #include <hardware/camera3.h>
 #include <hardware/gralloc1.h>
-#include <CameraParameters.h>
-#include <CameraMetadata.h>
+#include <camera/CameraParameters.h>
+#include <camera/CameraMetadata.h>
 #include <media/hardware/MetadataBufferType.h>
 #include <system/camera_metadata.h>
 
