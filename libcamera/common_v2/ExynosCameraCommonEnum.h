@@ -50,6 +50,7 @@ typedef enum
     SENSOR_NAME_S5K4H8              = 27,
     SENSOR_NAME_S5K3M3              = 33,
     SENSOR_NAME_S5K3P8SP            = 44,
+    SENSOR_NAME_S5K2P6              = 58,
 
     SENSOR_NAME_IMX135              = 101, // 101 ~ 200 Sony sensors
     SENSOR_NAME_IMX134              = 102,

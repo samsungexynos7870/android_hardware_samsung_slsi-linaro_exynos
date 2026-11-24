@@ -115,6 +115,17 @@ public:
     ExynosCamera3SensorS5K2P8Base();
 };
 
+struct ExynosCamera3SensorS5K2P6Base : public ExynosCamera3SensorInfoBase {
+public:
+    ExynosCamera3SensorS5K2P6Base(int cameraId);
+
+protected:
+    ExynosCamera3SensorS5K2P6Base() {}
+
+private:
+    void m_init(int cameraId);
+};
+
 struct ExynosCamera3SensorS5K6B2Base : public ExynosCamera3SensorInfoBase {
 private:
 

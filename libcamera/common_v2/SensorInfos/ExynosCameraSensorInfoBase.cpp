@@ -7095,4 +7095,183 @@ ExynosSensorIMX258Base::ExynosSensorIMX258Base() : ExynosSensorInfoBase()
 #endif
 };
 
+ExynosSensorS5K2P6Base::ExynosSensorS5K2P6Base() : ExynosSensorInfoBase()
+{
+    maxPreviewW = 3840;
+    maxPreviewH = 2160;
+    maxPictureW = 4608;
+    maxPictureH = 3456;
+    maxVideoW = 3840;
+    maxVideoH = 2160;
+    maxSensorW = 4608;
+    maxSensorH = 3456;
+    sensorMarginW = 0;
+    sensorMarginH = 0;
+    //check until here
+    maxThumbnailW = 512;
+    maxThumbnailH = 384;
+
+    fNumberNum = 19;
+    fNumberDen = 10;
+    focalLengthNum = 360;
+    focalLengthDen = 100;
+    focusDistanceNum = 0;
+    focusDistanceDen = 0;
+    apertureDen = 100;
+    apertureNum = 185;
+
+    horizontalViewAngle[SIZE_RATIO_16_9] = 64.0f;
+    horizontalViewAngle[SIZE_RATIO_4_3] = 64.0f;
+    horizontalViewAngle[SIZE_RATIO_1_1] = 50.0f;
+    horizontalViewAngle[SIZE_RATIO_3_2] = 64.0f;
+    horizontalViewAngle[SIZE_RATIO_5_4] = 60.0f;
+    horizontalViewAngle[SIZE_RATIO_5_3] = 60.0f;
+    horizontalViewAngle[SIZE_RATIO_11_9] = 46.0f;
+    verticalViewAngle = 39.0f;
+    focalLengthIn35mmLength = 27;
+
+    minFps = 1;
+    maxFps = 30;
+
+#ifdef USE_SUBDIVIDED_EV
+    minExposureCompensation = -20;
+    maxExposureCompensation = 20;
+    exposureCompensationStep = 0.1f;
+#else
+    minExposureCompensation = -4;
+    maxExposureCompensation = 4;
+    exposureCompensationStep = 0.5f;
+#endif
+    maxNumDetectedFaces = 16;
+    maxNumFocusAreas = 1;
+    maxNumMeteringAreas = 1;
+    maxZoomLevel = MAX_ZOOM_LEVEL;
+    maxZoomRatio = MAX_ZOOM_RATIO;
+
+    zoomSupport = true;
+    smoothZoomSupport = false;
+    videoSnapshotSupport = true;
+    videoStabilizationSupport = false;
+    autoWhiteBalanceLockSupport = true;
+    autoExposureLockSupport = true;
+
+    antiBandingList =
+          ANTIBANDING_AUTO
+        | ANTIBANDING_50HZ
+        | ANTIBANDING_60HZ
+        | ANTIBANDING_OFF
+        ;
+
+    effectList =
+          EFFECT_NONE
+        ;
+
+    hiddenEffectList =
+          EFFECT_NONE
+        | EFFECT_MONO
+        | EFFECT_NEGATIVE
+        | EFFECT_SEPIA
+#ifndef USE_CAMERA2_API_SUPPORT
+        | EFFECT_BEAUTY_FACE
+#endif
+        ;
+
+        flashModeList =
+              FLASH_MODE_OFF
+            | FLASH_MODE_AUTO
+            | FLASH_MODE_ON
+            //| FLASH_MODE_RED_EYE
+            | FLASH_MODE_TORCH;
+
+        focusModeList =
+              FOCUS_MODE_AUTO
+            | FOCUS_MODE_INFINITY
+            | FOCUS_MODE_MACRO
+            //| FOCUS_MODE_FIXED
+            //| FOCUS_MODE_EDOF
+            | FOCUS_MODE_CONTINUOUS_VIDEO
+            | FOCUS_MODE_CONTINUOUS_PICTURE
+            | FOCUS_MODE_TOUCH
+            ;
+
+
+    sceneModeList =
+          SCENE_MODE_AUTO
+        /*| SCENE_MODE_ACTION
+        | SCENE_MODE_PORTRAIT
+        | SCENE_MODE_LANDSCAPE
+        | SCENE_MODE_NIGHT
+        | SCENE_MODE_NIGHT_PORTRAIT
+        | SCENE_MODE_THEATRE
+        | SCENE_MODE_BEACH
+        | SCENE_MODE_SNOW
+        | SCENE_MODE_SUNSET
+        | SCENE_MODE_STEADYPHOTO
+        | SCENE_MODE_FIREWORKS
+        | SCENE_MODE_PARTY
+        | SCENE_MODE_SPORTS
+        | SCENE_MODE_CANDLELIGHT*/
+        ;
+
+    whiteBalanceList =
+          WHITE_BALANCE_AUTO
+        | WHITE_BALANCE_INCANDESCENT
+        | WHITE_BALANCE_FLUORESCENT
+        //| WHITE_BALANCE_WARM_FLUORESCENT
+        | WHITE_BALANCE_DAYLIGHT
+        | WHITE_BALANCE_CLOUDY_DAYLIGHT
+        //| WHITE_BALANCE_TWILIGHT
+        //| WHITE_BALANCE_SHADE
+        ;
+
+    /* vendor specifics */
+    highResolutionCallbackW = 3264;
+    highResolutionCallbackH = 1836;
+    highSpeedRecording60WFHD = 1920;
+    highSpeedRecording60HFHD = 1080;
+    highSpeedRecording60W = 1008;
+    highSpeedRecording60H = 566;
+    highSpeedRecording120W = 1008;
+    highSpeedRecording120H = 566;
+    scalableSensorSupport = true;
+    bnsSupport = true;
+
+
+        previewSizeLutMax           = sizeof(PREVIEW_SIZE_LUT_2P6) / (sizeof(int) * SIZE_OF_LUT);
+        videoSizeLutMax             = sizeof(VIDEO_SIZE_LUT_2P6)   / (sizeof(int) * SIZE_OF_LUT);
+        pictureSizeLutMax           = sizeof(PICTURE_SIZE_LUT_2P6) / (sizeof(int) * SIZE_OF_LUT);
+        vtcallSizeLutMax            = sizeof(VTCALL_SIZE_LUT_2P6)     / (sizeof(int) * SIZE_OF_LUT);
+
+        previewSizeLut              = PREVIEW_SIZE_LUT_2P6;
+        videoSizeLut                = VIDEO_SIZE_LUT_2P6;
+        pictureSizeLut              = PICTURE_SIZE_LUT_2P6;
+        vtcallSizeLut               = VTCALL_SIZE_LUT_2P6;
+
+        sizeTableSupport      = true;
+
+
+        /* Set the max of preview/picture/video lists */
+        rearPreviewListMax      = sizeof(S5K2P6_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+        rearPictureListMax      = sizeof(S5K2P6_PICTURE_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+        hiddenRearPreviewListMax    = sizeof(S5K2P6_HIDDEN_PREVIEW_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+        hiddenRearPictureListMax    = sizeof(S5K2P6_HIDDEN_PICTURE_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+        thumbnailListMax    = sizeof(S5K2P6_THUMBNAIL_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+        rearVideoListMax        = sizeof(S5K2P6_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+        hiddenRearVideoListMax    = sizeof(S5K2P6_HIDDEN_VIDEO_LIST) / (sizeof(int) * SIZE_OF_RESOLUTION);
+        rearFPSListMax        = sizeof(S5K2P6_FPS_RANGE_LIST) / (sizeof(int) * 2);
+        hiddenRearFPSListMax    = sizeof(S5K2P6_HIDDEN_FPS_RANGE_LIST) / (sizeof(int) * 2);
+
+        /* Set supported preview/picture/video lists */
+        rearPreviewList     = S5K2P6_PREVIEW_LIST;
+        rearPictureList     = S5K2P6_PICTURE_LIST;
+        hiddenRearPreviewList   = S5K2P6_HIDDEN_PREVIEW_LIST;
+        hiddenRearPictureList   = S5K2P6_HIDDEN_PICTURE_LIST;
+        thumbnailList   = S5K2P6_THUMBNAIL_LIST;
+        rearVideoList       = S5K2P6_VIDEO_LIST;
+        hiddenRearVideoList   = S5K2P6_HIDDEN_VIDEO_LIST;
+        rearFPSList       = S5K2P6_FPS_RANGE_LIST;
+        hiddenRearFPSList   = S5K2P6_HIDDEN_FPS_RANGE_LIST;
+
+};
+
 }; /* namespace android */

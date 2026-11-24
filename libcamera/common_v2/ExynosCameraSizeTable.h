@@ -83,6 +83,7 @@ enum SIZE_LUT_INDEX {
 #else
 #include "ExynosCameraSizeTable3P3.h"
 #endif
+#include "ExynosCameraSizeTable2P6.h"
 #include "ExynosCameraSizeTable4H5.h"
 #include "ExynosCameraSizeTable5E2.h"
 #if defined(USE_FRONT_VFLIP_SENSOR)
