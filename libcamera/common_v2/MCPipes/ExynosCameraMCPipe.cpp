@@ -1814,6 +1814,7 @@ status_t ExynosCameraMCPipe::m_getBuffer(void)
         nodeDqRet[i] = NO_ERROR;
     }
     uint32_t captureNodeCount = 0;
+    bool captureNodeRequested = false;
     uint32_t checkPollingCount = 0;
 
     /* 1. Pop from request frame queue */
@@ -1947,6 +1948,7 @@ status_t ExynosCameraMCPipe::m_getBuffer(void)
 
         if (m_node[i] != NULL
             && newFrame->getRequest(pipeId) == true) {
+            captureNodeRequested = true;
 #ifndef SKIP_SCHECK_POLLING
             if (pipeId == PIPE_SCP && checkPollingCount == 0)
                 ret = m_checkPolling(m_node[i]);
@@ -2076,7 +2078,7 @@ status_t ExynosCameraMCPipe::m_getBuffer(void)
         checkRet |= nodeDqRet[i];
     }
 
-    if (captureNodeCount == 0 || checkRet != NO_ERROR) {
+    if ((captureNodeRequested == true && captureNodeCount == 0) || checkRet != NO_ERROR) {
         CLOGE("ERR(%s[%d]):frameCount(%d) : captureNodeCount == %d || checkRet(%d) != NO_ERROR. so, setFrameState(FRAME_STATE_SKIPPED)",
             __FUNCTION__, __LINE__, newFrame->getFrameCount(), captureNodeCount, checkRet);
 

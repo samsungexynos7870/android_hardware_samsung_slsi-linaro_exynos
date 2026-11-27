@@ -7202,7 +7202,7 @@ void ExynosCamera3SensorS5K2P6Base::m_init(int cameraId)
     maxNumOutputStreams[PROCESSED_STALL] = 1;
     maxNumInputStreams = 0;
     maxPipelineDepth = NUM_REQUEST_BLOCK_MAX;
-    partialResultCount = 2;
+    partialResultCount = 1;
 
     /* Android Scaler Static Metadata */
     zoomSupport = true;
